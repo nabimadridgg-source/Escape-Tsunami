@@ -1,22 +1,19 @@
--- [[ NABI HUB LOADER ]] --
-local function LoadNabi()
-    local github_url = "https://raw.githubusercontent.com/nabimadridgg-source/Escape-Tsunami/main/Nabi-Hub.lua"
-    
-    local success, result = pcall(function()
-        return game:HttpGet(github_url)
-    end)
+-- [[ NABI HUB OFFICIAL LOADER ]] --
+local repo = "https://raw.githubusercontent.com/nabimadridgg-source/Escape-Tsunami/main/"
+local file = "Nabi-Hub.lua"
 
-    if success then
-        local func, err = loadstring(result)
-        if func then
-            print("Nabi Hub: Authentication Success. Loading...")
-            func()
-        else
-            warn("Nabi Hub: Compilation Error: " .. tostring(err))
-        end
+local success, result = pcall(function()
+    return game:HttpGet(repo .. file)
+end)
+
+if success then
+    local compiled, err = loadstring(result)
+    if compiled then
+        -- This executes the obfuscated code in Nabi-Hub.lua
+        compiled() 
     else
-        warn("Nabi Hub: Failed to connect to GitHub.")
+        warn("Nabi Hub: [Error in Compilation] " .. tostring(err))
     end
+else
+    warn("Nabi Hub: [Connection Failed] Could not reach GitHub.")
 end
-
-LoadNabi()
