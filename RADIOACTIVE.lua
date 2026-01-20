@@ -3,8 +3,8 @@ return function(ParentFrame)
     ParentFrame:ClearAllChildren()
     
     local Enabled = false
-    local COIN_COLLECT_SPEED = 120 
-    local MAX_RADIUS = 200 -- Only coins within 200 studs
+    local COIN_COLLECT_SPEED = 250 
+    local MAX_RADIUS = 12000 -- Only coins within 200 studs
     local TweenService = game:GetService("TweenService")
     local LocalPlayer = game.Players.LocalPlayer
 
