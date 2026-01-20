@@ -112,9 +112,9 @@ local function CreateTab(name, pos, xMult, loadFunc)
 end
 
 -- Define Loaders
-local loadB = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/nabimadridgg-source/Escape-Tsunami/refs/heads/main/BrainrotLOGS?token=GHSAT0AAAAAADTTKSW6LHT2RRFMZ3DRGY3Q2LO53OQ"))()(ContentFrame) end
-local loadP = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/nabimadridgg-source/Escape-Tsunami/refs/heads/main/BreainrotPLACES?token=GHSAT0AAAAAADTTKSW65UBNAMYHBKE3KV7M2LO5XNA"))()(ContentFrame) end
-local loadR = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/nabimadridgg-source/Escape-Tsunami/refs/heads/main/BrainrotRADIOACTIVE?token=GHSAT0AAAAAADTTKSW6GCMNJ2BSRCBBEAMA2LO5W3Q"))()(ContentFrame) end
+local loadB = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/nabimadridgg-source/Escape-Tsunami/refs/heads/main/BrainrotLOGS?token=GHSAT0AAAAAADTTKSW6MUIWYUG4BBOXU5I62LO55LQ"))()(ContentFrame) end
+local loadP = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/nabimadridgg-source/Escape-Tsunami/refs/heads/main/BreainrotPLACES?token=GHSAT0AAAAAADTTKSW6BMFNGZPRDYFDKN7U2LO54XA"))()(ContentFrame) end
+local loadR = function() loadstring(game:HttpGet("https://raw.githubusercontent.com/nabimadridgg-source/Escape-Tsunami/refs/heads/main/BrainrotRADIOACTIVE?token=GHSAT0AAAAAADTTKSW6HDTTD6ZJISWOQSRG2LO55DQ"))()(ContentFrame) end
 
 -- Create Buttons
 local b1 = CreateTab("BRAINROT", UDim2.new(0, 0, 0, 0), 0, loadB)
