@@ -48,7 +48,7 @@ local function LoadPlaces()
 end
 
 local function LoadRadioactive()
-    loadstring(game:HttpGet("YOUR_RADIOACTIVE_URL_HERE"))()(ContentFrame)
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/nabimadridgg-source/Escape-Tsunami/refs/heads/main/BrainrotRADIOACTIVE?token=GHSAT0AAAAAADTTKSW6GCMNJ2BSRCBBEAMA2LO5W3Q"))()(ContentFrame)
 end
 
 -- Tab Buttons
