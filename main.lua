@@ -12,37 +12,11 @@ local BASE_URL = "https://raw.githubusercontent.com/nabimadridgg-source/Escape-T
 
 -- [[ UI ROOT ]] --
 local ScreenGui = Instance.new("ScreenGui", LocalPlayer.PlayerGui)
-ScreenGui.Name = "NabiHub_Particles"
+ScreenGui.Name = "NabiHub_V6"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
--- [[ PARTICLE FUNCTION ]] --
-local function CreateParticles(sourceFrame)
-    local center = sourceFrame.AbsolutePosition + (sourceFrame.AbsoluteSize / 2)
-    for i = 1, 10 do -- Number of particles
-        local p = Instance.new("Frame", ScreenGui)
-        p.Size = UDim2.new(0, 6, 0, 6)
-        p.Position = UDim2.new(0, center.X, 0, center.Y)
-        p.BackgroundColor3 = MAIN_COLOR
-        p.BorderSizePixel = 0
-        p.ZIndex = 100
-        Instance.new("UICorner", p).CornerRadius = UDim.new(1, 0)
-        
-        -- Random spread direction
-        local tx = math.random(-150, 150)
-        local ty = math.random(-150, 150)
-        
-        TweenService:Create(p, TweenInfo.new(0.6, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-            Position = p.Position + UDim2.new(0, tx, 0, ty),
-            BackgroundTransparency = 1,
-            Size = UDim2.new(0, 0, 0, 0)
-        }):Play()
-        
-        task.delay(0.6, function() p:Destroy() end)
-    end
-end
-
--- [[ MINIMIZE ICON ]] --
+-- [[ MINIMIZE ICON (Moveable) ]] --
 local MiniIcon = Instance.new("TextButton", ScreenGui)
 MiniIcon.Size = UDim2.new(0, 0, 0, 0)
 MiniIcon.Position = UDim2.new(0, 20, 0.4, 0)
@@ -52,10 +26,13 @@ MiniIcon.Font = Enum.Font.GothamBold
 MiniIcon.TextColor3 = MAIN_COLOR
 MiniIcon.TextSize = 10
 MiniIcon.Visible = false
-MiniIcon.Draggable = true 
+MiniIcon.Active = true
+MiniIcon.Draggable = true -- ENABLED: Move it anywhere
 MiniIcon.ZIndex = 20
 Instance.new("UICorner", MiniIcon).CornerRadius = UDim.new(1, 0)
-Instance.new("UIStroke", MiniIcon).Color = MAIN_COLOR
+local IconStroke = Instance.new("UIStroke", MiniIcon)
+IconStroke.Color = MAIN_COLOR
+IconStroke.Thickness = 2 
 
 -- [[ MAIN FRAME ]] --
 local MainFrame = Instance.new("Frame", ScreenGui)
@@ -87,29 +64,29 @@ Underline.Size = UDim2.new(0.33, -10, 0, 2); Underline.Position = UDim2.new(0, 5
 local ContentFrame = Instance.new("Frame", MainFrame)
 ContentFrame.Size = UDim2.new(1, -20, 1, -85); ContentFrame.Position = UDim2.new(0, 10, 0, 75); ContentFrame.BackgroundTransparency = 1
 
--- [[ PARTICLE ANIMATION LOGIC ]] --
+-- [[ ANIMATION LOGIC ]] --
 local function ToggleUI()
     IsMinimized = not IsMinimized
     
+    local openInfo = TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+    local closeInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.In)
+    
     if IsMinimized then
-        -- Particle burst from MainFrame
-        CreateParticles(MainFrame)
-        TweenService:Create(MainFrame, TweenInfo.new(0.3), {Size = UDim2.new(0,0,0,0), Rotation = 15}):Play()
-        task.wait(0.2)
+        TweenService:Create(MainFrame, closeInfo, {Size = UDim2.new(0,0,0,0), Rotation = 10}):Play()
+        task.wait(0.25)
         MainFrame.Visible = false
         
         MiniIcon.Visible = true
-        TweenService:Create(MiniIcon, TweenInfo.new(0.5, Enum.EasingStyle.Elastic), {Size = IconSize}):Play()
+        MiniIcon.Size = UDim2.new(0,0,0,0)
+        TweenService:Create(MiniIcon, openInfo, {Size = IconSize}):Play()
     else
-        -- Particle burst from MiniIcon
-        CreateParticles(MiniIcon)
-        TweenService:Create(MiniIcon, TweenInfo.new(0.2), {Size = UDim2.new(0,0,0,0)}):Play()
-        task.wait(0.1)
+        TweenService:Create(MiniIcon, closeInfo, {Size = UDim2.new(0,0,0,0)}):Play()
+        task.wait(0.2)
         MiniIcon.Visible = false
         
         MainFrame.Visible = true
-        MainFrame.Rotation = -15
-        TweenService:Create(MainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back), {Size = MainSize, Rotation = 0}):Play()
+        MainFrame.Rotation = -10
+        TweenService:Create(MainFrame, openInfo, {Size = MainSize, Rotation = 0}):Play()
     end
 end
 
