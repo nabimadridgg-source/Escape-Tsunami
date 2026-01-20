@@ -3,7 +3,8 @@ return function(ParentFrame)
     ParentFrame:ClearAllChildren()
     
     local Enabled = false
-    local COIN_COLLECT_SPEED = 120 -- Adjust speed as needed
+    local COIN_COLLECT_SPEED = 120 
+    local MAX_RADIUS = 200 -- Only coins within 200 studs
     local TweenService = game:GetService("TweenService")
     local LocalPlayer = game.Players.LocalPlayer
 
@@ -26,41 +27,52 @@ return function(ParentFrame)
         ToggleBtn.TextColor3 = Enabled and Color3.fromRGB(50, 255, 50) or Color3.fromRGB(255, 50, 50)
     end)
 
+    -- [[ HELPER: FIND NEAREST COIN ]] --
+    local function GetNearestCoin()
+        local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+        local eventParts = workspace:FindFirstChild("EventParts")
+        if not hrp or not eventParts then return nil end
+
+        local nearestCoin = nil
+        local shortestDistance = MAX_RADIUS -- Start at the max radius
+
+        for _, coin in ipairs(eventParts:GetChildren()) do
+            if coin:IsA("Model") then
+                local pivot = coin:GetPivot()
+                local distance = (hrp.Position - pivot.Position).Magnitude
+                
+                if distance < shortestDistance then
+                    shortestDistance = distance
+                    nearestCoin = coin
+                end
+            end
+        end
+        return nearestCoin
+    end
+
     -- [[ COLLECTION LOGIC ]] --
     task.spawn(function()
         while ParentFrame and ParentFrame.Parent do
             if Enabled then
-                local eventParts = workspace:FindFirstChild("EventParts")
-                if eventParts then
-                    -- Get all items in EventParts (the radioactive coins)
-                    local coins = eventParts:GetChildren()
-                    
-                    for _, coin in ipairs(coins) do
-                        if not Enabled then break end
+                local targetCoin = GetNearestCoin()
+                
+                if targetCoin then
+                    pcall(function()
+                        local hrp = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                        local targetPivot = targetCoin:GetPivot()
+                        local dist = (hrp.Position - targetPivot.Position).Magnitude
                         
-                        -- Check if it's a valid coin model
-                        if coin:IsA("Model") and coin.Name:find("Radioactive") then
-                            pcall(function()
-                                local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-                                if hrp then
-                                    -- Use WorldPivot as requested
-                                    local targetCFrame = coin:GetPivot() 
-                                    local distance = (hrp.Position - targetCFrame.Position).Magnitude
-                                    
-                                    -- Tween to the coin
-                                    local tween = TweenService:Create(hrp, TweenInfo.new(distance/COIN_COLLECT_SPEED, Enum.EasingStyle.Linear), {CFrame = targetCFrame})
-                                    tween:Play()
-                                    tween.Completed:Wait()
-                                    
-                                    -- Small wait to ensure collection registration
-                                    task.wait(0.1)
-                                end
-                            end)
-                        end
-                    end
+                        local tween = TweenService:Create(hrp, TweenInfo.new(dist/COIN_COLLECT_SPEED, Enum.EasingStyle.Linear), {CFrame = targetPivot})
+                        tween:Play()
+                        tween.Completed:Wait()
+                        task.wait(0.1) -- Wait for server to register collection
+                    end)
+                else
+                    -- If no coin found in radius, wait a bit before checking again
+                    task.wait(0.5)
                 end
             end
-            task.wait(0.5) -- Cool down before checking for new spawns
+            task.wait(0.1)
         end
     end)
 end
