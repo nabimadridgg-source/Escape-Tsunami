@@ -3,244 +3,60 @@ local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 
--- [[ CONFIGURATION ]] --
-local TWEEN_SPEED = 150 
-local COIN_COLLECT_SPEED = 120 
-local ANIM_TIME = 0.3 
-local MAIN_COLOR = Color3.fromRGB(0, 255, 200) -- Cyan Accent
-
-local CFRAMES = {
-    {Name = "COMMON",    CFrame = CFrame.new(204.014389, -2.81910014, -9.21708488)},
-    {Name = "UNCOMMON",  CFrame = CFrame.new(289.720459, -2.81910038, 8.36070633)},
-    {Name = "RARE",      CFrame = CFrame.new(401.519135, -2.8190999, 4.04100323)},
-    {Name = "EPIC",      CFrame = CFrame.new(545.758545, -2.8190999, 3.98888278)},
-    {Name = "LEGENDARY", CFrame = CFrame.new(756.261536, -2.81909966, -4.54531384)},
-    {Name = "MYTHICAL",  CFrame = CFrame.new(1072.44043, -2.81910014, 3.19335699)},
-    {Name = "CELESTIAL", CFrame = CFrame.new(1543.58447, -2.81909919, 13.7872305)},
-    {Name = "SECRET",    CFrame = CFrame.new(2247.1665, -2.81909966, -33.8198471)},
-    {Name = "NEW",       CFrame = CFrame.new(2585.66602, -2.8190999, -13.4220934)}
-}
-
-local AutoCollectEnabled = false
-local IsMinimized = false
+-- [[ CONFIG ]] --
+local MAIN_COLOR = Color3.fromRGB(0, 255, 200)
 local MainSize = UDim2.new(0, 360, 0, 285)
-local IconSize = UDim2.new(0, 60, 0, 60)
-
--- [[ UI CONSTRUCTION ]] --
-local existingTracker = LocalPlayer.PlayerGui:FindFirstChild("SecretBrainrotTracker")
-if existingTracker then existingTracker:Destroy() end
 
 local ScreenGui = Instance.new("ScreenGui", LocalPlayer.PlayerGui)
-ScreenGui.Name = "SecretBrainrotTracker"
-ScreenGui.ResetOnSpawn = false 
+ScreenGui.Name = "NabiHub_Main"
 
 local MainFrame = Instance.new("Frame", ScreenGui)
 MainFrame.Size = MainSize
 MainFrame.Position = UDim2.new(0, 20, 0.4, 0)
 MainFrame.BackgroundColor3 = Color3.fromRGB(12, 12, 17)
+MainFrame.Draggable = true
 MainFrame.Active = true
-MainFrame.Draggable = true 
-MainFrame.ClipsDescendants = true
 Instance.new("UICorner", MainFrame)
 
--- Modern Header with Title
-local TitleLabel = Instance.new("TextLabel", MainFrame)
-TitleLabel.Size = UDim2.new(0, 100, 0, 30)
-TitleLabel.Position = UDim2.new(0, 12, 0, 5)
-TitleLabel.BackgroundTransparency = 1
-TitleLabel.Text = "NABI HUB"
-TitleLabel.TextColor3 = MAIN_COLOR
-TitleLabel.Font = Enum.Font.GothamBold
-TitleLabel.TextSize = 14
-TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+-- Title & Close Button
+local Title = Instance.new("TextLabel", MainFrame)
+Title.Size = UDim2.new(0, 100, 0, 30); Title.Position = UDim2.new(0, 12, 0, 5); Title.BackgroundTransparency = 1
+Title.Text = "NABI HUB"; Title.TextColor3 = MAIN_COLOR; Title.Font = Enum.Font.GothamBold; Title.TextSize = 14
 
--- [[ FIXED CLOSE BUTTON ]] --
 local CloseBtn = Instance.new("TextButton", MainFrame)
-CloseBtn.Size = UDim2.new(0, 18, 0, 18) -- Tinier size
-CloseBtn.Position = UDim2.new(1, -24, 0, 8)
-CloseBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-CloseBtn.Text = "×"
-CloseBtn.TextColor3 = Color3.new(1, 1, 1)
-CloseBtn.Font = Enum.Font.GothamBold
-CloseBtn.TextSize = 14
--- Centering Logic
-CloseBtn.TextXAlignment = Enum.TextXAlignment.Center
-CloseBtn.TextYAlignment = Enum.TextYAlignment.Center
+CloseBtn.Size = UDim2.new(0, 18, 0, 18); CloseBtn.Position = UDim2.new(1, -24, 0, 8); CloseBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+CloseBtn.Text = "×"; CloseBtn.TextColor3 = Color3.new(1, 1, 1); CloseBtn.Font = Enum.Font.GothamBold; CloseBtn.TextSize = 14
+Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(1, 0)
+CloseBtn.MouseButton1Click:Connect(function() ScreenGui:Destroy() end)
 
-local CloseCorner = Instance.new("UICorner", CloseBtn)
-CloseCorner.CornerRadius = UDim.new(1, 0)
-
--- Close Button Hover Effect
-CloseBtn.MouseEnter:Connect(function() CloseBtn.BackgroundColor3 = Color3.fromRGB(255, 60, 60) end)
-CloseBtn.MouseLeave:Connect(function() CloseBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50) end)
-
--- Nabi Hub Icon (When Hidden)
-local MiniIcon = Instance.new("TextButton", ScreenGui)
-MiniIcon.Size = UDim2.new(0, 0, 0, 0)
-MiniIcon.Position = MainFrame.Position
-MiniIcon.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-MiniIcon.Text = "NABI HUB"
-MiniIcon.Font = Enum.Font.GothamBold
-MiniIcon.TextSize = 0
-MiniIcon.TextColor3 = MAIN_COLOR
-MiniIcon.Visible = false
-MiniIcon.Active = true
-MiniIcon.Draggable = true 
-Instance.new("UICorner", MiniIcon).CornerRadius = UDim.new(1, 0)
-
--- [[ ANIMATED TOGGLE LOGIC ]] --
-local function ToggleUI()
-    IsMinimized = not IsMinimized
-    local info = TweenInfo.new(ANIM_TIME, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
-    if IsMinimized then
-        TweenService:Create(MainFrame, info, {Size = UDim2.new(0,0,0,0), BackgroundTransparency = 1}):Play()
-        task.wait(ANIM_TIME/2)
-        MainFrame.Visible = false
-        MiniIcon.Position = MainFrame.Position
-        MiniIcon.Visible = true
-        TweenService:Create(MiniIcon, info, {Size = IconSize, TextSize = 10}):Play()
-    else
-        TweenService:Create(MiniIcon, info, {Size = UDim2.new(0,0,0,0), TextSize = 0}):Play()
-        task.wait(ANIM_TIME/2)
-        MiniIcon.Visible = false
-        MainFrame.Position = MiniIcon.Position
-        MainFrame.Visible = true
-        TweenService:Create(MainFrame, info, {Size = MainSize, BackgroundTransparency = 0}):Play()
-    end
-end
-
-CloseBtn.MouseButton1Click:Connect(ToggleUI)
-MiniIcon.MouseButton1Click:Connect(ToggleUI)
-UserInputService.InputBegan:Connect(function(input, gpe)
-    if not gpe and input.KeyCode == Enum.KeyCode.K then ToggleUI() end
-end)
-
--- [[ TABS SYSTEM ]] --
+-- Tab Container
 local TabContainer = Instance.new("Frame", MainFrame)
-TabContainer.Size = UDim2.new(1, -20, 0, 30)
-TabContainer.Position = UDim2.new(0, 10, 0, 40)
-TabContainer.BackgroundTransparency = 1
+TabContainer.Size = UDim2.new(1, -20, 0, 30); TabContainer.Position = UDim2.new(0, 10, 0, 40); TabContainer.BackgroundTransparency = 1
 
-local Underline = Instance.new("Frame", TabContainer)
-Underline.Size = UDim2.new(0.33, -10, 0, 2)
-Underline.Position = UDim2.new(0, 5, 1, -2)
-Underline.BackgroundColor3 = MAIN_COLOR
-Underline.BorderSizePixel = 0
+-- Content Container
+local ContentFrame = Instance.new("Frame", MainFrame)
+ContentFrame.Size = UDim2.new(1, -20, 1, -85); ContentFrame.Position = UDim2.new(0, 10, 0, 75); ContentFrame.BackgroundTransparency = 1
 
-local function CreateTab(name, pos, width)
-    local btn = Instance.new("TextButton", TabContainer)
-    btn.Size = UDim2.new(width, 0, 1, 0); btn.Position = pos; btn.Text = name
-    btn.BackgroundTransparency = 1; btn.TextColor3 = Color3.fromRGB(150, 150, 150)
-    btn.Font = Enum.Font.GothamBold; btn.TextSize = 8; return btn
+-- [[ LOADSTRINGS ]] --
+-- Replace the URLs below with your actual Pastebin/Github raw links
+local function LoadBrainrot()
+    loadstring(game:HttpGet("YOUR_BRAINROT_URL_HERE"))()(ContentFrame)
 end
 
-local LogTab = CreateTab("BRAINROT M/S", UDim2.new(0,0,0,0), 0.333)
-local PlaceTab = CreateTab("PLACES", UDim2.new(0.333,0,0,0), 0.333)
-local CoinTab = CreateTab("RADIOACTIVE", UDim2.new(0.666,0,0,0), 0.334)
-
--- Shared content frames
-local LogContent = Instance.new("ScrollingFrame", MainFrame)
-LogContent.Size = UDim2.new(1, -20, 1, -85); LogContent.Position = UDim2.new(0, 10, 0, 75); LogContent.BackgroundTransparency = 1; LogContent.ScrollBarThickness = 0
-local UIList = Instance.new("UIListLayout", LogContent); UIList.Padding = UDim.new(0, 5)
-
-local PlaceContent = Instance.new("ScrollingFrame", MainFrame)
-PlaceContent.Size = UDim2.new(1, -20, 1, -85); PlaceContent.Position = UDim2.new(0, 10, 0, 75); PlaceContent.BackgroundTransparency = 1; PlaceContent.Visible = false; PlaceContent.ScrollBarThickness = 0
-
-local CoinContent = Instance.new("Frame", MainFrame)
-CoinContent.Size = UDim2.new(1, -20, 1, -85); CoinContent.Position = UDim2.new(0, 10, 0, 75); CoinContent.BackgroundTransparency = 1; CoinContent.Visible = false
-
--- [[ TAB LOGIC ]] --
-local function SwitchTab(btn, content, underlinePosX)
-    LogContent.Visible = false; PlaceContent.Visible = false; CoinContent.Visible = false
-    content.Visible = true
-    LogTab.TextColor3 = Color3.fromRGB(150, 150, 150)
-    PlaceTab.TextColor3 = Color3.fromRGB(150, 150, 150)
-    CoinTab.TextColor3 = Color3.fromRGB(150, 150, 150)
-    btn.TextColor3 = Color3.new(1, 1, 1)
-    TweenService:Create(Underline, TweenInfo.new(0.2), {Position = UDim2.new(underlinePosX, 5, 1, -2)}):Play()
+local function LoadPlaces()
+    loadstring(game:HttpGet("YOUR_PLACES_URL_HERE"))()(ContentFrame)
 end
 
-LogTab.MouseButton1Click:Connect(function() SwitchTab(LogTab, LogContent, 0) end)
-PlaceTab.MouseButton1Click:Connect(function() SwitchTab(PlaceTab, PlaceContent, 0.333) end)
-CoinTab.MouseButton1Click:Connect(function() SwitchTab(CoinTab, CoinContent, 0.666) end)
-SwitchTab(LogTab, LogContent, 0)
-
--- [[ PLACES GRID ]] --
-local UIGridPlace = Instance.new("UIGridLayout", PlaceContent)
-UIGridPlace.CellSize = UDim2.new(0.5, -5, 0, 35); UIGridPlace.CellPadding = UDim2.new(0, 10, 0, 10)
-
-for _, data in ipairs(CFRAMES) do
-    local btn = Instance.new("TextButton", PlaceContent)
-    btn.BackgroundColor3 = Color3.fromRGB(0, 0, 0); btn.Text = data.Name; btn.TextColor3 = Color3.new(1,1,1); btn.Font = Enum.Font.GothamBold; btn.TextSize = 9; Instance.new("UICorner", btn)
-    local s = Instance.new("UIStroke", btn); s.Color = Color3.fromRGB(30, 30, 35); s.Thickness = 1
-    btn.MouseButton1Click:Connect(function() 
-        local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-        if hrp then
-            local dist = (hrp.Position - data.CFrame.Position).Magnitude
-            TweenService:Create(hrp, TweenInfo.new(dist/TWEEN_SPEED, Enum.EasingStyle.Linear), {CFrame = data.CFrame}):Play()
-        end
-    end)
+local function LoadRadioactive()
+    loadstring(game:HttpGet("YOUR_RADIOACTIVE_URL_HERE"))()(ContentFrame)
 end
 
--- [[ AUTO COLLECT LOGIC ]] --
-local ToggleBtn = Instance.new("TextButton", CoinContent)
-ToggleBtn.Size = UDim2.new(0, 220, 0, 45); ToggleBtn.Position = UDim2.new(0.5,-110,0.4,-22); ToggleBtn.BackgroundColor3 = Color3.fromRGB(20,20,25); ToggleBtn.Text = "AUTO-COLLECT: OFF"; ToggleBtn.TextColor3 = Color3.fromRGB(255,50,50); ToggleBtn.Font = Enum.Font.GothamBold; Instance.new("UICorner", ToggleBtn); local st = Instance.new("UIStroke", ToggleBtn); st.Color = Color3.fromRGB(40,40,45)
-ToggleBtn.MouseButton1Click:Connect(function()
-    AutoCollectEnabled = not AutoCollectEnabled
-    ToggleBtn.Text = "AUTO-COLLECT: " .. (AutoCollectEnabled and "ON" or "OFF")
-    ToggleBtn.TextColor3 = AutoCollectEnabled and Color3.fromRGB(50, 255, 50) or Color3.fromRGB(255, 50, 50)
-end)
+-- Tab Buttons
+local b1 = Instance.new("TextButton", TabContainer)
+b1.Size = UDim2.new(0.33, 0, 1, 0); b1.Text = "BRAINROT"; b1.MouseButton1Click:Connect(LoadBrainrot)
 
-task.spawn(function()
-    while true do
-        if AutoCollectEnabled then
-            for _, v in next, getnilinstances() do
-                if v.Name == "Radioactive Coin" and v:IsA("Model") and AutoCollectEnabled then
-                    pcall(function()
-                        local target = v.EventParts:FindFirstChild("Radioactive Coin")
-                        local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-                        if target and hrp then 
-                            local dist = (hrp.Position - target.Position).Magnitude
-                            local t = TweenService:Create(hrp, TweenInfo.new(dist/COIN_COLLECT_SPEED, Enum.EasingStyle.Linear), {CFrame = target.CFrame})
-                            t:Play() t.Completed:Wait()
-                        end
-                    end)
-                end
-            end
-        end
-        task.wait(0.5)
-    end
-end)
+local b2 = Instance.new("TextButton", TabContainer)
+b2.Size = UDim2.new(0.33, 0, 1, 0); b2.Position = UDim2.new(0.33, 0, 0, 0); b2.Text = "PLACES"; b2.MouseButton1Click:Connect(LoadPlaces)
 
-local function ParseMoney(str)
-    local clean = str:gsub("[%(%)]", ""):gsub("/s", ""):lower()
-    local num = tonumber(clean:match("[%d%.]+")) or 0
-    if clean:find("k") then num = num * 1000 elseif clean:find("m") then num = num * 1000000 elseif clean:find("b") then num = num * 1000000000 end
-    return num
-end
-
-local function UpdateList()
-    local dataList = {}
-    local secretFolder = workspace:FindFirstChild("ActiveBrainrots") and workspace.ActiveBrainrots:FindFirstChild("Secret")
-    if not secretFolder then return end
-    for _, rb in pairs(secretFolder:GetChildren()) do
-        local model = rb:FindFirstChildWhichIsA("Model")
-        local frame = model and model:FindFirstChild("ModelExtents") and model.ModelExtents:FindFirstChild("StatsGui") and model.ModelExtents.StatsGui:FindFirstChild("Frame")
-        if frame then
-            local tL = rb:FindFirstChild("Root") and rb.Root:FindFirstChild("TimerGui") and rb.Root.TimerGui:FindFirstChild("TimeLeft") and rb.Root.TimerGui.TimeLeft:FindFirstChild("TimeLeft")
-            table.insert(dataList, { Instance = rb, Name = frame.BrainrotName.Text, Rate = frame.Rate.Text, Time = tL and tL.Text or "--:--", Val = ParseMoney(frame.Rate.Text) })
-        end
-    end
-    table.sort(dataList, function(a, b) return a.Val > b.Val end)
-    for _, v in pairs(LogContent:GetChildren()) do if v:IsA("Frame") then v:Destroy() end end
-    for i, d in ipairs(dataList) do
-        local E = Instance.new("Frame", LogContent); E.Size = UDim2.new(1,-5,0,32); E.BackgroundColor3 = (i==1) and Color3.fromRGB(35,30,15) or Color3.fromRGB(22,22,27); Instance.new("UICorner", E)
-        local n = Instance.new("TextLabel", E); n.Size = UDim2.new(0.3,0,1,0); n.Position = UDim2.new(0,8,0,0); n.BackgroundTransparency=1; n.Text=d.Name; n.TextColor3=Color3.new(1,1,1); n.Font=Enum.Font.GothamMedium; n.TextSize=8; n.TextXAlignment=Enum.TextXAlignment.Left
-        local r = Instance.new("TextLabel", E); r.Size = UDim2.new(0.25,0,1,0); r.Position = UDim2.new(0.3,5,0,0); r.BackgroundTransparency=1; r.Text=d.Rate; r.TextColor3=(i==1) and Color3.new(1,0.8,0) or Color3.new(0,1,0.6); r.Font=Enum.Font.GothamBold; r.TextSize=9; r.TextXAlignment=Enum.TextXAlignment.Left
-        local tm = Instance.new("TextLabel", E); tm.Size = UDim2.new(0.2,0,1,0); tm.Position = UDim2.new(0.55,5,0,0); tm.BackgroundTransparency=1; tm.Text=d.Time; tm.TextColor3=Color3.new(0,0.8,1); tm.Font=Enum.Font.Code; tm.TextSize=9
-        local tp = Instance.new("TextButton", E); tp.Size = UDim2.new(0,35,0,20); tp.Position = UDim2.new(0.85,-5,0.5,-10); tp.BackgroundColor3=Color3.new(0,0.4,1); tp.Text="TP"; tp.TextColor3=Color3.new(1,1,1); tp.Font=Enum.Font.GothamBold; tp.TextSize=9; Instance.new("UICorner", tp)
-        tp.MouseButton1Click:Connect(function() local h = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") if h then h.CFrame = d.Instance:GetPivot() * CFrame.new(0,5,0) end end)
-    end
-    LogContent.CanvasSize = UDim2.new(0, 0, 0, UIList.AbsoluteContentSize.Y)
-end
-task.spawn(function() while true do pcall(UpdateList) task.wait(1.5) end end)
+local b3 = Instance.new("TextButton", TabContainer)
+b3.Size = UDim2.new(0.33, 0, 1, 0); b3.Position = UDim2.new(0.66, 0, 0, 0); b3.Text = "RADIOACTIVE"; b3.MouseButton1Click:Connect(LoadRadioactive)
