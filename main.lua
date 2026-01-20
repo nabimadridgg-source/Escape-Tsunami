@@ -84,8 +84,8 @@ local function CreateTab(name, x, mod, file)
     b.MouseButton1Click:Connect(function() SwitchTab(x * 330, mod, file) end)
 end
 
-CreateTab("LOGS", 0, "LOGS", "LOGS.lua")
-CreateTab("PLACES", 0.33, "PLACES", "PLACES.lua")
+    CreateTab("LOGS", 0, "LOGS", "LOGS.lua")
+CreateTab("LOCATIONS", 0.33, "LOCATIONS", "LOCATIONS.lua")
 CreateTab("RADIOACTIVE", 0.66, "RADIOACTIVE", "RADIOACTIVE.lua")
 
 -- Auto-load first
