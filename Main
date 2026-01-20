@@ -44,7 +44,7 @@ local function LoadBrainrot()
 end
 
 local function LoadPlaces()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/nabimadridgg-source/Escape-Tsunami/refs/heads/main/BrainrotLOGS?token=GHSAT0AAAAAADTTKSW6KNYN724NY4UVYCW62LO5WIQ"))()(ContentFrame)
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/nabimadridgg-source/Escape-Tsunami/refs/heads/main/BreainrotPLACES?token=GHSAT0AAAAAADTTKSW65UBNAMYHBKE3KV7M2LO5XNA"))()(ContentFrame)
 end
 
 local function LoadRadioactive()
