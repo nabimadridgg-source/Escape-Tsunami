@@ -3,16 +3,16 @@ local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 
--- [[ CONFIGURATION - UPSIZED ]] --
+-- [[ CONFIGURATION - BALANCED LARGE ]] --
 local MAIN_COLOR = Color3.fromRGB(0, 255, 200)
-local MainSize = UDim2.new(0, 1000, 0, 800) -- Increased from 360x285
-local IconSize = UDim2.new(0, 200, 0, 200)   -- Increased from 65x65
+local MainSize = UDim2.new(0, 600, 0, 450) -- Large but playable
+local IconSize = UDim2.new(0, 70, 0, 70)   -- Easy to click, not intrusive
 local IsMinimized = false
 local BASE_URL = "https://raw.githubusercontent.com/nabimadridgg-source/Escape-Tsunami/main/"
 
 -- [[ UI ROOT ]] --
 local ScreenGui = Instance.new("ScreenGui", LocalPlayer.PlayerGui)
-ScreenGui.Name = "NabiHub_V10_Large"
+ScreenGui.Name = "NabiHub_V11"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
@@ -23,7 +23,7 @@ MiniIcon.BackgroundColor3 = Color3.fromRGB(50, 50, 65)
 MiniIcon.Text = "N A B I"
 MiniIcon.Font = Enum.Font.GothamBold
 MiniIcon.TextColor3 = MAIN_COLOR
-MiniIcon.TextSize = 14 -- Slightly larger font
+MiniIcon.TextSize = 12 
 MiniIcon.Visible = false
 MiniIcon.Active = true
 MiniIcon.Draggable = true 
@@ -47,7 +47,7 @@ Instance.new("UIStroke", MainFrame).Color = Color3.fromRGB(50, 50, 60)
 
 -- [[ HEADER / TABS / CONTENT ]] --
 local Header = Instance.new("Frame", MainFrame)
-Header.Size = UDim2.new(1, 0, 0, 45); Header.BackgroundTransparency = 1 -- Taller header
+Header.Size = UDim2.new(1, 0, 0, 45); Header.BackgroundTransparency = 1
 
 local Title = Instance.new("TextLabel", Header)
 Title.Size = UDim2.new(1, -50, 1, 0); Title.Position = UDim2.new(0, 18, 0, 0); Title.BackgroundTransparency = 1
@@ -116,13 +116,13 @@ local function SwitchTab(btn, x, mod, file)
     ContentFrame:ClearAllChildren()
     if Modules[mod] then Modules[mod](ContentFrame) else
         local s = Instance.new("TextLabel", ContentFrame)
-        s.Size = UDim2.new(1,0,1,0); s.TextSize = 16; s.Text = "Loading Nabi Scripts..."; s.TextColor3 = Color3.new(1,1,1); s.BackgroundTransparency = 1
+        s.Size = UDim2.new(1,0,1,0); s.TextSize = 16; s.Text = "Fetching Nabi Hub Data..."; s.TextColor3 = Color3.new(1,1,1); s.BackgroundTransparency = 1
         task.spawn(function()
             local success, code = pcall(function() return game:HttpGet(BASE_URL .. file) end)
             if success and not code:find("404") then
                 local f = loadstring(code)
-                if f then Modules[mod] = f(); s:Destroy(); Modules[mod](ContentFrame) else s.Text = "Syntax Error" end
-            else s.Text = "GitHub Connection Failed" end
+                if f then Modules[mod] = f(); s:Destroy(); Modules[mod](ContentFrame) else s.Text = "Compilation Error" end
+            else s.Text = "Could not reach GitHub" end
         end)
     end
 end
