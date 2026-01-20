@@ -3,27 +3,27 @@ local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 
--- [[ CONFIGURATION ]] --
+-- [[ CONFIGURATION - UPSIZED ]] --
 local MAIN_COLOR = Color3.fromRGB(0, 255, 200)
-local MainSize = UDim2.new(0, 360, 0, 285)
-local IconSize = UDim2.new(0, 65, 0, 65)
+local MainSize = UDim2.new(0, 500, 0, 400) -- Increased from 360x285
+local IconSize = UDim2.new(0, 80, 0, 80)   -- Increased from 65x65
 local IsMinimized = false
 local BASE_URL = "https://raw.githubusercontent.com/nabimadridgg-source/Escape-Tsunami/main/"
 
 -- [[ UI ROOT ]] --
 local ScreenGui = Instance.new("ScreenGui", LocalPlayer.PlayerGui)
-ScreenGui.Name = "NabiHub_V9_UpperLeft"
+ScreenGui.Name = "NabiHub_V10_Large"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
--- [[ MINIMIZE ICON ]] --
+-- [[ MINIMIZE ICON (Moveable) ]] --
 local MiniIcon = Instance.new("TextButton", ScreenGui)
 MiniIcon.Size = UDim2.new(0, 0, 0, 0)
 MiniIcon.BackgroundColor3 = Color3.fromRGB(50, 50, 65)
 MiniIcon.Text = "N A B I"
 MiniIcon.Font = Enum.Font.GothamBold
 MiniIcon.TextColor3 = MAIN_COLOR
-MiniIcon.TextSize = 10
+MiniIcon.TextSize = 14 -- Slightly larger font
 MiniIcon.Visible = false
 MiniIcon.Active = true
 MiniIcon.Draggable = true 
@@ -31,38 +31,41 @@ MiniIcon.ZIndex = 20
 Instance.new("UICorner", MiniIcon).CornerRadius = UDim.new(1, 0)
 local IconStroke = Instance.new("UIStroke", MiniIcon)
 IconStroke.Color = MAIN_COLOR
-IconStroke.Thickness = 2 
+IconStroke.Thickness = 2.5 
 
 -- [[ MAIN FRAME ]] --
 local MainFrame = Instance.new("Frame", ScreenGui)
 MainFrame.Size = MainSize
--- Positioned at Upper Left with a small 20px gap from the edges
-MainFrame.Position = UDim2.new(0, 20, 0, 20) 
+MainFrame.Position = UDim2.new(0, 30, 0, 30) -- Upper left
 MainFrame.BackgroundColor3 = Color3.fromRGB(12, 12, 17)
 MainFrame.Active = true
 MainFrame.Draggable = true
 MainFrame.ClipsDescendants = true
 MainFrame.Visible = true
-Instance.new("UICorner", MainFrame)
+Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 10)
 Instance.new("UIStroke", MainFrame).Color = Color3.fromRGB(50, 50, 60)
 
 -- [[ HEADER / TABS / CONTENT ]] --
 local Header = Instance.new("Frame", MainFrame)
-Header.Size = UDim2.new(1, 0, 0, 35); Header.BackgroundTransparency = 1
+Header.Size = UDim2.new(1, 0, 0, 45); Header.BackgroundTransparency = 1 -- Taller header
+
 local Title = Instance.new("TextLabel", Header)
-Title.Size = UDim2.new(1, -40, 1, 0); Title.Position = UDim2.new(0, 12, 0, 0); Title.BackgroundTransparency = 1
-Title.Text = "NABI HUB"; Title.TextColor3 = MAIN_COLOR; Title.Font = Enum.Font.GothamBold; Title.TextSize = 14; Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.Size = UDim2.new(1, -50, 1, 0); Title.Position = UDim2.new(0, 18, 0, 0); Title.BackgroundTransparency = 1
+Title.Text = "NABI HUB"; Title.TextColor3 = MAIN_COLOR; Title.Font = Enum.Font.GothamBold; Title.TextSize = 18; Title.TextXAlignment = Enum.TextXAlignment.Left
+
 local CloseBtn = Instance.new("TextButton", Header)
-CloseBtn.Size = UDim2.new(0, 22, 0, 22); CloseBtn.Position = UDim2.new(1, -28, 0.5, -11); CloseBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-CloseBtn.Text = "×"; CloseBtn.TextColor3 = Color3.new(1, 1, 1); CloseBtn.Font = Enum.Font.GothamBold; CloseBtn.TextSize = 18
+CloseBtn.Size = UDim2.new(0, 28, 0, 28); CloseBtn.Position = UDim2.new(1, -35, 0.5, -14); CloseBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+CloseBtn.Text = "×"; CloseBtn.TextColor3 = Color3.new(1, 1, 1); CloseBtn.Font = Enum.Font.GothamBold; CloseBtn.TextSize = 22
 Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(0.3, 0)
 
 local TabContainer = Instance.new("Frame", MainFrame)
-TabContainer.Size = UDim2.new(1, -20, 0, 30); TabContainer.Position = UDim2.new(0, 10, 0, 40); TabContainer.BackgroundTransparency = 1
+TabContainer.Size = UDim2.new(1, -30, 0, 35); TabContainer.Position = UDim2.new(0, 15, 0, 55); TabContainer.BackgroundTransparency = 1
+
 local Underline = Instance.new("Frame", TabContainer)
-Underline.Size = UDim2.new(0.33, -10, 0, 2); Underline.Position = UDim2.new(0, 5, 1, -2); Underline.BackgroundColor3 = MAIN_COLOR; Underline.BorderSizePixel = 0
+Underline.Size = UDim2.new(0.33, -15, 0, 3); Underline.Position = UDim2.new(0, 7, 1, -2); Underline.BackgroundColor3 = MAIN_COLOR; Underline.BorderSizePixel = 0
+
 local ContentFrame = Instance.new("Frame", MainFrame)
-ContentFrame.Size = UDim2.new(1, -20, 1, -85); ContentFrame.Position = UDim2.new(0, 10, 0, 75); ContentFrame.BackgroundTransparency = 1
+ContentFrame.Size = UDim2.new(1, -30, 1, -110); ContentFrame.Position = UDim2.new(0, 15, 0, 100); ContentFrame.BackgroundTransparency = 1
 
 -- [[ TOGGLE LOGIC ]] --
 local function ToggleUI()
@@ -75,7 +78,7 @@ local function ToggleUI()
         local centerY = MainFrame.Position.Y.Offset + (MainFrame.Size.Y.Offset / 2)
         local centerPos = UDim2.new(MainFrame.Position.X.Scale, centerX - (IconSize.X.Offset/2), MainFrame.Position.Y.Scale, centerY - (IconSize.Y.Offset/2))
 
-        TweenService:Create(MainFrame, hide, {Size = UDim2.new(0,0,0,0), Rotation = 15}):Play()
+        TweenService:Create(MainFrame, hide, {Size = UDim2.new(0,0,0,0), Rotation = 10}):Play()
         task.wait(0.2)
         MainFrame.Visible = false
         
@@ -93,7 +96,7 @@ local function ToggleUI()
         
         MainFrame.Position = newMainPos
         MainFrame.Visible = true
-        MainFrame.Rotation = -15
+        MainFrame.Rotation = -10
         TweenService:Create(MainFrame, pop, {Size = MainSize, Rotation = 0}):Play()
     end
 end
@@ -109,17 +112,17 @@ local function SwitchTab(btn, x, mod, file)
         if child:IsA("TextButton") then child.TextColor3 = Color3.fromRGB(150, 150, 150) end
     end
     btn.TextColor3 = Color3.new(1, 1, 1)
-    TweenService:Create(Underline, TweenInfo.new(0.4, Enum.EasingStyle.Back), {Position = UDim2.new(x, 5, 1, -2)}):Play()
+    TweenService:Create(Underline, TweenInfo.new(0.4, Enum.EasingStyle.Back), {Position = UDim2.new(x, 7, 1, -2)}):Play()
     ContentFrame:ClearAllChildren()
     if Modules[mod] then Modules[mod](ContentFrame) else
         local s = Instance.new("TextLabel", ContentFrame)
-        s.Size = UDim2.new(1,0,1,0); s.Text = "Loading..."; s.TextColor3 = Color3.new(1,1,1); s.BackgroundTransparency = 1
+        s.Size = UDim2.new(1,0,1,0); s.TextSize = 16; s.Text = "Loading Nabi Scripts..."; s.TextColor3 = Color3.new(1,1,1); s.BackgroundTransparency = 1
         task.spawn(function()
             local success, code = pcall(function() return game:HttpGet(BASE_URL .. file) end)
             if success and not code:find("404") then
                 local f = loadstring(code)
-                if f then Modules[mod] = f(); s:Destroy(); Modules[mod](ContentFrame) else s.Text = "Error" end
-            else s.Text = "Failed" end
+                if f then Modules[mod] = f(); s:Destroy(); Modules[mod](ContentFrame) else s.Text = "Syntax Error" end
+            else s.Text = "GitHub Connection Failed" end
         end)
     end
 end
@@ -127,7 +130,7 @@ end
 local function CreateTab(n, x, m, f)
     local b = Instance.new("TextButton", TabContainer)
     b.Size = UDim2.new(0.33, 0, 1, 0); b.Position = UDim2.new(x, 0, 0, 0)
-    b.Text = n; b.Font = Enum.Font.GothamBold; b.TextSize = 8; b.TextColor3 = Color3.fromRGB(150, 150, 150); b.BackgroundTransparency = 1
+    b.Text = n; b.Font = Enum.Font.GothamBold; b.TextSize = 12; b.TextColor3 = Color3.fromRGB(150, 150, 150); b.BackgroundTransparency = 1
     b.MouseButton1Click:Connect(function() SwitchTab(b, x, m, f) end); return b
 end
 
