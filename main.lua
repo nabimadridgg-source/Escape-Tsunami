@@ -4,7 +4,7 @@ local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 
 -- [[ CONFIGURATION ]] --
-local MAIN_COLOR = Color3.fromRGB(0, 255, 200)
+local MAIN_COLOR = Color3.fromRGB(0, 255, 200) -- Bright Cyan
 local MainSize = UDim2.new(0, 360, 0, 285)
 local IconSize = UDim2.new(0, 60, 0, 60)
 local ANIM_TIME = 0.3
@@ -13,23 +13,30 @@ local BASE_URL = "https://raw.githubusercontent.com/nabimadridgg-source/Escape-T
 
 -- [[ UI ROOT ]] --
 local ScreenGui = Instance.new("ScreenGui", LocalPlayer.PlayerGui)
-ScreenGui.Name = "NabiHub_V3"
+ScreenGui.Name = "NabiHub_V3_Bright"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
--- [[ MINIMIZE ICON (The Hub Toggle) ]] --
+-- [[ MINIMIZE ICON (The Bright Toggle) ]] --
 local MiniIcon = Instance.new("TextButton", ScreenGui)
 MiniIcon.Name = "MiniIcon"
-MiniIcon.Size = UDim2.new(0, 0, 0, 0) -- Starts at 0 for animation
+MiniIcon.Size = UDim2.new(0, 0, 0, 0)
 MiniIcon.Position = UDim2.new(0, 20, 0.4, 0)
-MiniIcon.BackgroundColor3 = Color3.fromRGB(10, 10, 15)
+MiniIcon.BackgroundColor3 = Color3.fromRGB(40, 40, 50) -- Lighter Grey-Blue
 MiniIcon.Text = "NABI"
 MiniIcon.Font = Enum.Font.GothamBold
 MiniIcon.TextColor3 = MAIN_COLOR
 MiniIcon.Visible = false
+MiniIcon.Draggable = true -- Now you can move the icon too!
 MiniIcon.ZIndex = 10
-Instance.new("UICorner", MiniIcon).CornerRadius = UDim.new(1, 0)
-Instance.new("UIStroke", MiniIcon).Color = MAIN_COLOR
+
+local IconCorner = Instance.new("UICorner", MiniIcon)
+IconCorner.CornerRadius = UDim.new(1, 0)
+
+local IconStroke = Instance.new("UIStroke", MiniIcon)
+IconStroke.Color = MAIN_COLOR
+IconStroke.Thickness = 2 -- Thicker border for visibility
+IconStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 
 -- [[ MAIN FRAME ]] --
 local MainFrame = Instance.new("Frame", ScreenGui)
@@ -41,12 +48,12 @@ MainFrame.Active = true
 MainFrame.Draggable = true
 MainFrame.ClipsDescendants = true
 Instance.new("UICorner", MainFrame)
+
 local MainStroke = Instance.new("UIStroke", MainFrame)
-MainStroke.Color = Color3.fromRGB(30, 30, 35)
+MainStroke.Color = Color3.fromRGB(50, 50, 60)
 
 -- [[ HEADER BAR ]] --
 local Header = Instance.new("Frame", MainFrame)
-Header.Name = "Header"
 Header.Size = UDim2.new(1, 0, 0, 35)
 Header.BackgroundTransparency = 1
 
@@ -61,7 +68,6 @@ Title.TextSize = 14
 Title.TextXAlignment = Enum.TextXAlignment.Left
 
 local CloseBtn = Instance.new("TextButton", Header)
-CloseBtn.Name = "CloseBtn"
 CloseBtn.Size = UDim2.new(0, 22, 0, 22)
 CloseBtn.Position = UDim2.new(1, -28, 0.5, -11)
 CloseBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
@@ -88,13 +94,12 @@ ContentFrame.Size = UDim2.new(1, -20, 1, -85)
 ContentFrame.Position = UDim2.new(0, 10, 0, 75)
 ContentFrame.BackgroundTransparency = 1
 
--- [[ TOGGLE / HIDE UI LOGIC ]] --
+-- [[ TOGGLE LOGIC ]] --
 local function ToggleUI()
     IsMinimized = not IsMinimized
     local info = TweenInfo.new(ANIM_TIME, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
     
     if IsMinimized then
-        -- Hide Main, Show Mini
         TweenService:Create(MainFrame, info, {Size = UDim2.new(0,0,0,0), BackgroundTransparency = 1}):Play()
         task.wait(ANIM_TIME/1.5)
         MainFrame.Visible = false
@@ -102,7 +107,6 @@ local function ToggleUI()
         MiniIcon.Visible = true
         TweenService:Create(MiniIcon, info, {Size = IconSize}):Play()
     else
-        -- Hide Mini, Show Main
         TweenService:Create(MiniIcon, info, {Size = UDim2.new(0,0,0,0)}):Play()
         task.wait(ANIM_TIME/1.5)
         MiniIcon.Visible = false
@@ -111,30 +115,23 @@ local function ToggleUI()
     end
 end
 
--- Interactions
 CloseBtn.MouseButton1Click:Connect(ToggleUI)
 MiniIcon.MouseButton1Click:Connect(ToggleUI)
 
--- "K" Key Toggle
 UserInputService.InputBegan:Connect(function(input, gpe)
     if not gpe and input.KeyCode == Enum.KeyCode.K then
         ToggleUI()
     end
 end)
 
--- [[ MODULE LOADING LOGIC ]] --
+-- [[ LOADER LOGIC ]] --
 local Modules = {}
-
 local function SwitchTab(btn, underlineX, modName, fileName)
-    -- Reset Tab Button Colors
     for _, child in pairs(TabContainer:GetChildren()) do
         if child:IsA("TextButton") then child.TextColor3 = Color3.fromRGB(150, 150, 150) end
     end
     btn.TextColor3 = Color3.new(1, 1, 1)
-    
-    -- Animate Underline
     TweenService:Create(Underline, TweenInfo.new(0.25, Enum.EasingStyle.Sine), {Position = UDim2.new(underlineX, 5, 1, -2)}):Play()
-    
     ContentFrame:ClearAllChildren()
     
     if Modules[modName] then
@@ -152,11 +149,10 @@ local function SwitchTab(btn, underlineX, modName, fileName)
                     status:Destroy()
                     Modules[modName](ContentFrame)
                 else
-                    status.Text = "SYNTAX ERROR IN FILE"
+                    status.Text = "SCRIPT ERROR IN FILE"
                 end
             else
-                status.Text = "FAILED: FILE NOT FOUND ON GITHUB"
-                warn("Nabi Hub: Could not find " .. BASE_URL .. fileName)
+                status.Text = "DOWNLOAD FAILED (CHECK GITHUB)"
             end
         end)
     end
@@ -167,15 +163,8 @@ local function CreateTab(name, xPos, modName, fileName)
     local btn = Instance.new("TextButton", TabContainer)
     btn.Size = UDim2.new(0.33, 0, 1, 0)
     btn.Position = UDim2.new(xPos, 0, 0, 0)
-    btn.Text = name
-    btn.Font = Enum.Font.GothamBold
-    btn.TextSize = 8
-    btn.TextColor3 = Color3.fromRGB(150, 150, 150)
-    btn.BackgroundTransparency = 1
-    
-    btn.MouseButton1Click:Connect(function()
-        SwitchTab(btn, xPos, modName, fileName)
-    end)
+    btn.Text = name; btn.Font = Enum.Font.GothamBold; btn.TextSize = 8; btn.TextColor3 = Color3.fromRGB(150, 150, 150); btn.BackgroundTransparency = 1
+    btn.MouseButton1Click:Connect(function() SwitchTab(btn, xPos, modName, fileName) end)
     return btn
 end
 
@@ -183,6 +172,5 @@ local b1 = CreateTab("LOGS", 0, "LOGS", "LOGS.lua")
 local b2 = CreateTab("LOCATIONS", 0.33, "LOCATIONS", "LOCATIONS.lua")
 local b3 = CreateTab("RADIOACTIVE", 0.66, "RADIOACTIVE", "RADIOACTIVE.lua")
 
--- Auto-load first tab
 task.wait(0.2)
 SwitchTab(b1, 0, "LOGS", "LOGS.lua")
