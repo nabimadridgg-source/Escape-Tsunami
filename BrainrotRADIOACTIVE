@@ -1,0 +1,44 @@
+-- Host this as Category_Radioactive.lua
+return function(ParentFrame)
+    ParentFrame:ClearAllChildren()
+    
+    local Enabled = false
+    local ToggleBtn = Instance.new("TextButton", ParentFrame)
+    ToggleBtn.Size = UDim2.new(0, 220, 0, 45)
+    ToggleBtn.Position = UDim2.new(0.5,-110,0.4,-22)
+    ToggleBtn.BackgroundColor3 = Color3.fromRGB(20,20,25)
+    ToggleBtn.Text = "AUTO-COLLECT: OFF"
+    ToggleBtn.TextColor3 = Color3.fromRGB(255,50,50)
+    ToggleBtn.Font = Enum.Font.GothamBold
+    Instance.new("UICorner", ToggleBtn)
+    
+    local st = Instance.new("UIStroke", ToggleBtn)
+    st.Color = Color3.fromRGB(40,40,45)
+
+    ToggleBtn.MouseButton1Click:Connect(function()
+        Enabled = not Enabled
+        ToggleBtn.Text = "AUTO-COLLECT: " .. (Enabled and "ON" or "OFF")
+        ToggleBtn.TextColor3 = Enabled and Color3.fromRGB(50, 255, 50) or Color3.fromRGB(255, 50, 50)
+    end)
+
+    task.spawn(function()
+        while ParentFrame and ParentFrame.Parent do
+            if Enabled then
+                for _, v in next, getnilinstances() do
+                    if v.Name == "Radioactive Coin" and v:IsA("Model") and Enabled then
+                        pcall(function()
+                            local target = v.EventParts:FindFirstChild("Radioactive Coin")
+                            local hrp = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                            if target and hrp then 
+                                local dist = (hrp.Position - target.Position).Magnitude
+                                local t = game:GetService("TweenService"):Create(hrp, TweenInfo.new(dist/120, Enum.EasingStyle.Linear), {CFrame = target.CFrame})
+                                t:Play() t.Completed:Wait()
+                            end
+                        end)
+                    end
+                end
+            end
+            task.wait(0.5)
+        end
+    end)
+end
