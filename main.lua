@@ -13,23 +13,27 @@ local BASE_URL = "https://raw.githubusercontent.com/nabimadridgg-source/Escape-T
 
 -- [[ UI ROOT ]] --
 local ScreenGui = Instance.new("ScreenGui", LocalPlayer.PlayerGui)
-ScreenGui.Name = "NabiHub_Final_Revised"
+ScreenGui.Name = "NabiHub_V3"
 ScreenGui.ResetOnSpawn = false
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
--- [[ MINIMIZE ICON ]] --
+-- [[ MINIMIZE ICON (The Hub Toggle) ]] --
 local MiniIcon = Instance.new("TextButton", ScreenGui)
-MiniIcon.Size = UDim2.new(0, 0, 0, 0)
+MiniIcon.Name = "MiniIcon"
+MiniIcon.Size = UDim2.new(0, 0, 0, 0) -- Starts at 0 for animation
 MiniIcon.Position = UDim2.new(0, 20, 0.4, 0)
-MiniIcon.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-MiniIcon.Text = "Nabi Hub"
+MiniIcon.BackgroundColor3 = Color3.fromRGB(10, 10, 15)
+MiniIcon.Text = "NABI"
 MiniIcon.Font = Enum.Font.GothamBold
 MiniIcon.TextColor3 = MAIN_COLOR
 MiniIcon.Visible = false
-MiniIcon.ClipsDescendants = true
+MiniIcon.ZIndex = 10
 Instance.new("UICorner", MiniIcon).CornerRadius = UDim.new(1, 0)
+Instance.new("UIStroke", MiniIcon).Color = MAIN_COLOR
 
 -- [[ MAIN FRAME ]] --
 local MainFrame = Instance.new("Frame", ScreenGui)
+MainFrame.Name = "MainFrame"
 MainFrame.Size = MainSize
 MainFrame.Position = UDim2.new(0, 20, 0.4, 0)
 MainFrame.BackgroundColor3 = Color3.fromRGB(12, 12, 17)
@@ -37,111 +41,148 @@ MainFrame.Active = true
 MainFrame.Draggable = true
 MainFrame.ClipsDescendants = true
 Instance.new("UICorner", MainFrame)
+local MainStroke = Instance.new("UIStroke", MainFrame)
+MainStroke.Color = Color3.fromRGB(30, 30, 35)
 
--- [[ HEADER & CLOSE ]] --
-local Title = Instance.new("TextLabel", MainFrame)
-Title.Size = UDim2.new(0, 100, 0, 30); Title.Position = UDim2.new(0, 12, 0, 5); Title.BackgroundTransparency = 1
-Title.Text = "NABI HUB"; Title.TextColor3 = MAIN_COLOR; Title.Font = Enum.Font.GothamBold; Title.TextSize = 14; Title.TextXAlignment = Enum.TextXAlignment.Left
+-- [[ HEADER BAR ]] --
+local Header = Instance.new("Frame", MainFrame)
+Header.Name = "Header"
+Header.Size = UDim2.new(1, 0, 0, 35)
+Header.BackgroundTransparency = 1
 
-local CloseBtn = Instance.new("TextButton", MainFrame)
-CloseBtn.Size = UDim2.new(0, 18, 0, 18); CloseBtn.Position = UDim2.new(1, -24, 0, 8); CloseBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-CloseBtn.Text = "×"; CloseBtn.TextColor3 = Color3.new(1, 1, 1); CloseBtn.Font = Enum.Font.GothamBold; CloseBtn.TextSize = 14
-Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(1, 0)
+local Title = Instance.new("TextLabel", Header)
+Title.Size = UDim2.new(1, -40, 1, 0)
+Title.Position = UDim2.new(0, 12, 0, 0)
+Title.BackgroundTransparency = 1
+Title.Text = "NABI HUB"
+Title.TextColor3 = MAIN_COLOR
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 14
+Title.TextXAlignment = Enum.TextXAlignment.Left
 
--- [[ TAB UNDERLINE ]] --
-local Underline = Instance.new("Frame", MainFrame)
+local CloseBtn = Instance.new("TextButton", Header)
+CloseBtn.Name = "CloseBtn"
+CloseBtn.Size = UDim2.new(0, 22, 0, 22)
+CloseBtn.Position = UDim2.new(1, -28, 0.5, -11)
+CloseBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+CloseBtn.Text = "×"
+CloseBtn.TextColor3 = Color3.new(1, 1, 1)
+CloseBtn.Font = Enum.Font.GothamBold
+CloseBtn.TextSize = 18
+Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(0.3, 0)
+
+-- [[ TAB SYSTEM UI ]] --
+local TabContainer = Instance.new("Frame", MainFrame)
+TabContainer.Size = UDim2.new(1, -20, 0, 30)
+TabContainer.Position = UDim2.new(0, 10, 0, 40)
+TabContainer.BackgroundTransparency = 1
+
+local Underline = Instance.new("Frame", TabContainer)
 Underline.Size = UDim2.new(0.33, -10, 0, 2)
-Underline.Position = UDim2.new(0, 15, 0, 70)
+Underline.Position = UDim2.new(0, 5, 1, -2)
 Underline.BackgroundColor3 = MAIN_COLOR
 Underline.BorderSizePixel = 0
 
--- [[ CONTENT AREA ]] --
 local ContentFrame = Instance.new("Frame", MainFrame)
 ContentFrame.Size = UDim2.new(1, -20, 1, -85)
 ContentFrame.Position = UDim2.new(0, 10, 0, 75)
 ContentFrame.BackgroundTransparency = 1
 
--- [[ TOGGLE / HIDE LOGIC ]] --
+-- [[ TOGGLE / HIDE UI LOGIC ]] --
 local function ToggleUI()
     IsMinimized = not IsMinimized
     local info = TweenInfo.new(ANIM_TIME, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
+    
     if IsMinimized then
+        -- Hide Main, Show Mini
         TweenService:Create(MainFrame, info, {Size = UDim2.new(0,0,0,0), BackgroundTransparency = 1}):Play()
-        task.wait(ANIM_TIME/2)
+        task.wait(ANIM_TIME/1.5)
         MainFrame.Visible = false
         MiniIcon.Position = MainFrame.Position
         MiniIcon.Visible = true
-        TweenService:Create(MiniIcon, info, {Size = IconSize, TextSize = 10}):Play()
+        TweenService:Create(MiniIcon, info, {Size = IconSize}):Play()
     else
-        TweenService:Create(MiniIcon, info, {Size = UDim2.new(0,0,0,0), TextSize = 0}):Play()
-        task.wait(ANIM_TIME/2)
+        -- Hide Mini, Show Main
+        TweenService:Create(MiniIcon, info, {Size = UDim2.new(0,0,0,0)}):Play()
+        task.wait(ANIM_TIME/1.5)
         MiniIcon.Visible = false
         MainFrame.Visible = true
         TweenService:Create(MainFrame, info, {Size = MainSize, BackgroundTransparency = 0}):Play()
     end
 end
 
+-- Interactions
 CloseBtn.MouseButton1Click:Connect(ToggleUI)
 MiniIcon.MouseButton1Click:Connect(ToggleUI)
+
+-- "K" Key Toggle
 UserInputService.InputBegan:Connect(function(input, gpe)
-    if not gpe and input.KeyCode == Enum.KeyCode.K then ToggleUI() end
+    if not gpe and input.KeyCode == Enum.KeyCode.K then
+        ToggleUI()
+    end
 end)
 
--- [[ LOADING LOGIC ]] --
+-- [[ MODULE LOADING LOGIC ]] --
 local Modules = {}
 
-local function SwitchTab(underlineX, modName, fileName)
-    ContentFrame:ClearAllChildren()
-    TweenService:Create(Underline, TweenInfo.new(0.3), {Position = UDim2.new(0, underlineX + 15, 0, 70)}):Play()
+local function SwitchTab(btn, underlineX, modName, fileName)
+    -- Reset Tab Button Colors
+    for _, child in pairs(TabContainer:GetChildren()) do
+        if child:IsA("TextButton") then child.TextColor3 = Color3.fromRGB(150, 150, 150) end
+    end
+    btn.TextColor3 = Color3.new(1, 1, 1)
     
-    local status = Instance.new("TextLabel", ContentFrame)
-    status.Size = UDim2.new(1,0,1,0); status.BackgroundTransparency=1; status.TextColor3=Color3.new(1,1,1); status.TextSize = 10; status.TextWrapped = true
-
+    -- Animate Underline
+    TweenService:Create(Underline, TweenInfo.new(0.25, Enum.EasingStyle.Sine), {Position = UDim2.new(underlineX, 5, 1, -2)}):Play()
+    
+    ContentFrame:ClearAllChildren()
+    
     if Modules[modName] then
-        status:Destroy()
         Modules[modName](ContentFrame)
     else
-        status.Text = "Fetching " .. fileName .. "..."
+        local status = Instance.new("TextLabel", ContentFrame)
+        status.Size = UDim2.new(1,0,1,0); status.Text = "Loading " .. fileName .. "..."; status.TextColor3 = Color3.new(1,1,1); status.BackgroundTransparency = 1
+        
         task.spawn(function()
             local success, code = pcall(function() return game:HttpGet(BASE_URL .. fileName) end)
-            if success then
-                if code:find("404: Not Found") or code:len() < 10 then
-                    status.Text = "ERROR 404: File '" .. fileName .. "' not found. Check if the name matches exactly on GitHub (All Caps)!"
-                    status.TextColor3 = Color3.new(1, 0.4, 0.4)
+            if success and not code:find("404") then
+                local func = loadstring(code)
+                if func then
+                    Modules[modName] = func()
+                    status:Destroy()
+                    Modules[modName](ContentFrame)
                 else
-                    local func, err = loadstring(code)
-                    if func then
-                        Modules[modName] = func()
-                        status:Destroy()
-                        Modules[modName](ContentFrame)
-                    else
-                        status.Text = "SYNTAX ERROR in " .. fileName .. ": " .. tostring(err)
-                        status.TextColor3 = Color3.new(1, 1, 0)
-                    end
+                    status.Text = "SYNTAX ERROR IN FILE"
                 end
             else
-                status.Text = "HTTP FAILED: Repo might be Private or URL is wrong."
-                status.TextColor3 = Color3.new(1, 0, 0)
+                status.Text = "FAILED: FILE NOT FOUND ON GITHUB"
+                warn("Nabi Hub: Could not find " .. BASE_URL .. fileName)
             end
         end)
     end
 end
 
--- [[ TABS ]] --
-local TabContainer = Instance.new("Frame", MainFrame)
-TabContainer.Size = UDim2.new(1, 0, 0, 30); TabContainer.Position = UDim2.new(0, 0, 0, 40); TabContainer.BackgroundTransparency = 1
-
-local function CreateTab(name, x, mod, file)
-    local b = Instance.new("TextButton", TabContainer)
-    b.Size = UDim2.new(0.33, 0, 1, 0); b.Position = UDim2.new(x, 0, 0, 0)
-    b.Text = name; b.TextColor3 = Color3.new(1,1,1); b.BackgroundTransparency = 1; b.Font = Enum.Font.GothamBold; b.TextSize = 8
-    b.MouseButton1Click:Connect(function() SwitchTab(x * 330, mod, file) end)
+-- [[ TABS SETUP ]] --
+local function CreateTab(name, xPos, modName, fileName)
+    local btn = Instance.new("TextButton", TabContainer)
+    btn.Size = UDim2.new(0.33, 0, 1, 0)
+    btn.Position = UDim2.new(xPos, 0, 0, 0)
+    btn.Text = name
+    btn.Font = Enum.Font.GothamBold
+    btn.TextSize = 8
+    btn.TextColor3 = Color3.fromRGB(150, 150, 150)
+    btn.BackgroundTransparency = 1
+    
+    btn.MouseButton1Click:Connect(function()
+        SwitchTab(btn, xPos, modName, fileName)
+    end)
+    return btn
 end
 
-CreateTab("LOGS", 0, "LOGS", "LOGS.lua")
-CreateTab("LOCATIONS", 0.33, "LOCATIONS", "LOCATIONS.lua")
-CreateTab("RADIOACTIVE", 0.66, "RADIOACTIVE", "RADIOACTIVE.lua")
+local b1 = CreateTab("LOGS", 0, "LOGS", "LOGS.lua")
+local b2 = CreateTab("LOCATIONS", 0.33, "LOCATIONS", "LOCATIONS.lua")
+local b3 = CreateTab("RADIOACTIVE", 0.66, "RADIOACTIVE", "RADIOACTIVE.lua")
 
--- Initial Load
+-- Auto-load first tab
 task.wait(0.2)
-SwitchTab(0, "LOGS", "LOGS.lua")
+SwitchTab(b1, 0, "LOGS", "LOGS.lua")
