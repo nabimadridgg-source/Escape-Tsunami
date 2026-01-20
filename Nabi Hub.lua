@@ -1,6 +1,6 @@
 -- [[ NABI HUB LOADER ]] --
 local function LoadNabi()
-    local github_url = "https://raw.githubusercontent.com/nabimadridgg-source/Escape-Tsunami/main/source.lua"
+    local github_url = "https://raw.githubusercontent.com/nabimadridgg-source/Escape-Tsunami/main/Nabi-Hub.lua"
     
     local success, result = pcall(function()
         return game:HttpGet(github_url)
