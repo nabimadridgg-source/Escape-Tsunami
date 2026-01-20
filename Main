@@ -74,21 +74,26 @@ local function ToggleUI()
     end
 end
 
+-- Button Listeners
 CloseBtn.MouseButton1Click:Connect(ToggleUI)
 MiniIcon.MouseButton1Click:Connect(ToggleUI)
+
+-- Keyboard Listener (K Key)
+UserInputService.InputBegan:Connect(function(input, gpe)
+    if not gpe and input.KeyCode == Enum.KeyCode.K then
+        ToggleUI()
+    end
+end)
 
 -- [[ SMOOTH TAB SWITCHING ]] --
 local Tabs = {}
 local function SwitchTab(btn, underlineX, loadFunc)
-    -- Reset all tab colors
     for _, tab in ipairs(Tabs) do
         TweenService:Create(tab, TweenInfo.new(0.2), {TextColor3 = Color3.fromRGB(150, 150, 150)}):Play()
     end
-    -- Highlight active
     TweenService:Create(btn, TweenInfo.new(0.2), {TextColor3 = Color3.new(1, 1, 1)}):Play()
     TweenService:Create(Underline, TweenInfo.new(0.25, Enum.EasingStyle.Sine), {Position = UDim2.new(underlineX, 5, 1, -2)}):Play()
     
-    -- Load Content
     pcall(loadFunc)
 end
 
