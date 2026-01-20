@@ -5,8 +5,8 @@ local LocalPlayer = Players.LocalPlayer
 
 -- [[ CONFIGURATION - UPSIZED ]] --
 local MAIN_COLOR = Color3.fromRGB(0, 255, 200)
-local MainSize = UDim2.new(0, 500, 0, 400) -- Increased from 360x285
-local IconSize = UDim2.new(0, 80, 0, 80)   -- Increased from 65x65
+local MainSize = UDim2.new(0, 1000, 0, 800) -- Increased from 360x285
+local IconSize = UDim2.new(0, 200, 0, 200)   -- Increased from 65x65
 local IsMinimized = false
 local BASE_URL = "https://raw.githubusercontent.com/nabimadridgg-source/Escape-Tsunami/main/"
 
