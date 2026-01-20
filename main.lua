@@ -5,7 +5,7 @@ local LocalPlayer = Players.LocalPlayer
 
 -- [[ CONFIGURATION - BALANCED LARGE ]] --
 local MAIN_COLOR = Color3.fromRGB(0, 255, 200)
-local MainSize = UDim2.new(0, 600, 0, 450) -- Large but playable
+local MainSize = UDim2.new(0, 200, 0, 150) -- Large but playable
 local IconSize = UDim2.new(0, 70, 0, 70)   -- Easy to click, not intrusive
 local IsMinimized = false
 local BASE_URL = "https://raw.githubusercontent.com/nabimadridgg-source/Escape-Tsunami/main/"
