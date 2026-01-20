@@ -4,7 +4,7 @@ local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 
 -- [[ CONFIGURATION ]] --
-local MAIN_COLOR = Color3.fromRGB(0, 255, 200) -- Bright Cyan
+local MAIN_COLOR = Color3.fromRGB(0, 255, 200)
 local MainSize = UDim2.new(0, 360, 0, 285)
 local IconSize = UDim2.new(0, 60, 0, 60)
 local ANIM_TIME = 0.3
@@ -13,7 +13,7 @@ local BASE_URL = "https://raw.githubusercontent.com/nabimadridgg-source/Escape-T
 
 -- [[ UI ROOT ]] --
 local ScreenGui = Instance.new("ScreenGui", LocalPlayer.PlayerGui)
-ScreenGui.Name = "NabiHub_V3_Bright"
+ScreenGui.Name = "NabiHub_V4"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
@@ -22,21 +22,21 @@ local MiniIcon = Instance.new("TextButton", ScreenGui)
 MiniIcon.Name = "MiniIcon"
 MiniIcon.Size = UDim2.new(0, 0, 0, 0)
 MiniIcon.Position = UDim2.new(0, 20, 0.4, 0)
-MiniIcon.BackgroundColor3 = Color3.fromRGB(40, 40, 50) -- Lighter Grey-Blue
-MiniIcon.Text = "NABI"
+MiniIcon.BackgroundColor3 = Color3.fromRGB(50, 50, 65) -- Even lighter for visibility
+MiniIcon.Text = "N A B I"
 MiniIcon.Font = Enum.Font.GothamBold
 MiniIcon.TextColor3 = MAIN_COLOR
+MiniIcon.TextSize = 10
 MiniIcon.Visible = false
-MiniIcon.Draggable = true -- Now you can move the icon too!
-MiniIcon.ZIndex = 10
+MiniIcon.Draggable = true 
+MiniIcon.ZIndex = 20
 
 local IconCorner = Instance.new("UICorner", MiniIcon)
 IconCorner.CornerRadius = UDim.new(1, 0)
 
 local IconStroke = Instance.new("UIStroke", MiniIcon)
 IconStroke.Color = MAIN_COLOR
-IconStroke.Thickness = 2 -- Thicker border for visibility
-IconStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+IconStroke.Thickness = 2 
 
 -- [[ MAIN FRAME ]] --
 local MainFrame = Instance.new("Frame", ScreenGui)
@@ -47,6 +47,7 @@ MainFrame.BackgroundColor3 = Color3.fromRGB(12, 12, 17)
 MainFrame.Active = true
 MainFrame.Draggable = true
 MainFrame.ClipsDescendants = true
+MainFrame.ZIndex = 1
 Instance.new("UICorner", MainFrame)
 
 local MainStroke = Instance.new("UIStroke", MainFrame)
@@ -56,6 +57,7 @@ MainStroke.Color = Color3.fromRGB(50, 50, 60)
 local Header = Instance.new("Frame", MainFrame)
 Header.Size = UDim2.new(1, 0, 0, 35)
 Header.BackgroundTransparency = 1
+Header.ZIndex = 5
 
 local Title = Instance.new("TextLabel", Header)
 Title.Size = UDim2.new(1, -40, 1, 0)
@@ -66,6 +68,7 @@ Title.TextColor3 = MAIN_COLOR
 Title.Font = Enum.Font.GothamBold
 Title.TextSize = 14
 Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.ZIndex = 6
 
 local CloseBtn = Instance.new("TextButton", Header)
 CloseBtn.Size = UDim2.new(0, 22, 0, 22)
@@ -75,6 +78,7 @@ CloseBtn.Text = "×"
 CloseBtn.TextColor3 = Color3.new(1, 1, 1)
 CloseBtn.Font = Enum.Font.GothamBold
 CloseBtn.TextSize = 18
+CloseBtn.ZIndex = 7
 Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(0.3, 0)
 
 -- [[ TAB SYSTEM UI ]] --
@@ -82,17 +86,20 @@ local TabContainer = Instance.new("Frame", MainFrame)
 TabContainer.Size = UDim2.new(1, -20, 0, 30)
 TabContainer.Position = UDim2.new(0, 10, 0, 40)
 TabContainer.BackgroundTransparency = 1
+TabContainer.ZIndex = 5
 
 local Underline = Instance.new("Frame", TabContainer)
 Underline.Size = UDim2.new(0.33, -10, 0, 2)
 Underline.Position = UDim2.new(0, 5, 1, -2)
 Underline.BackgroundColor3 = MAIN_COLOR
 Underline.BorderSizePixel = 0
+Underline.ZIndex = 6
 
 local ContentFrame = Instance.new("Frame", MainFrame)
 ContentFrame.Size = UDim2.new(1, -20, 1, -85)
 ContentFrame.Position = UDim2.new(0, 10, 0, 75)
 ContentFrame.BackgroundTransparency = 1
+ContentFrame.ZIndex = 2
 
 -- [[ TOGGLE LOGIC ]] --
 local function ToggleUI()
@@ -100,7 +107,7 @@ local function ToggleUI()
     local info = TweenInfo.new(ANIM_TIME, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
     
     if IsMinimized then
-        TweenService:Create(MainFrame, info, {Size = UDim2.new(0,0,0,0), BackgroundTransparency = 1}):Play()
+        TweenService:Create(MainFrame, info, {Size = UDim2.new(0,0,0,0)}):Play()
         task.wait(ANIM_TIME/1.5)
         MainFrame.Visible = false
         MiniIcon.Position = MainFrame.Position
@@ -111,7 +118,7 @@ local function ToggleUI()
         task.wait(ANIM_TIME/1.5)
         MiniIcon.Visible = false
         MainFrame.Visible = true
-        TweenService:Create(MainFrame, info, {Size = MainSize, BackgroundTransparency = 0}):Play()
+        TweenService:Create(MainFrame, info, {Size = MainSize}):Play()
     end
 end
 
@@ -138,7 +145,7 @@ local function SwitchTab(btn, underlineX, modName, fileName)
         Modules[modName](ContentFrame)
     else
         local status = Instance.new("TextLabel", ContentFrame)
-        status.Size = UDim2.new(1,0,1,0); status.Text = "Loading " .. fileName .. "..."; status.TextColor3 = Color3.new(1,1,1); status.BackgroundTransparency = 1
+        status.Size = UDim2.new(1,0,1,0); status.Text = "Connecting to GitHub..."; status.TextColor3 = Color3.new(1,1,1); status.BackgroundTransparency = 1
         
         task.spawn(function()
             local success, code = pcall(function() return game:HttpGet(BASE_URL .. fileName) end)
@@ -149,10 +156,10 @@ local function SwitchTab(btn, underlineX, modName, fileName)
                     status:Destroy()
                     Modules[modName](ContentFrame)
                 else
-                    status.Text = "SCRIPT ERROR IN FILE"
+                    status.Text = "SYNTAX ERROR IN " .. fileName
                 end
             else
-                status.Text = "DOWNLOAD FAILED (CHECK GITHUB)"
+                status.Text = "FAILED TO DOWNLOAD. CHECK FILENAME/RENAME."
             end
         end)
     end
@@ -164,6 +171,7 @@ local function CreateTab(name, xPos, modName, fileName)
     btn.Size = UDim2.new(0.33, 0, 1, 0)
     btn.Position = UDim2.new(xPos, 0, 0, 0)
     btn.Text = name; btn.Font = Enum.Font.GothamBold; btn.TextSize = 8; btn.TextColor3 = Color3.fromRGB(150, 150, 150); btn.BackgroundTransparency = 1
+    btn.ZIndex = 6
     btn.MouseButton1Click:Connect(function() SwitchTab(btn, xPos, modName, fileName) end)
     return btn
 end
