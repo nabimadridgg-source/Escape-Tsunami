@@ -12,27 +12,9 @@ local BASE_URL = "https://raw.githubusercontent.com/nabimadridgg-source/Escape-T
 
 -- [[ UI ROOT ]] --
 local ScreenGui = Instance.new("ScreenGui", LocalPlayer.PlayerGui)
-ScreenGui.Name = "NabiHub_V6"
+ScreenGui.Name = "NabiHub_V7"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
--- [[ MINIMIZE ICON (Moveable) ]] --
-local MiniIcon = Instance.new("TextButton", ScreenGui)
-MiniIcon.Size = UDim2.new(0, 0, 0, 0)
-MiniIcon.Position = UDim2.new(0, 20, 0.4, 0)
-MiniIcon.BackgroundColor3 = Color3.fromRGB(50, 50, 65)
-MiniIcon.Text = "N A B I"
-MiniIcon.Font = Enum.Font.GothamBold
-MiniIcon.TextColor3 = MAIN_COLOR
-MiniIcon.TextSize = 10
-MiniIcon.Visible = false
-MiniIcon.Active = true
-MiniIcon.Draggable = true -- ENABLED: Move it anywhere
-MiniIcon.ZIndex = 20
-Instance.new("UICorner", MiniIcon).CornerRadius = UDim.new(1, 0)
-local IconStroke = Instance.new("UIStroke", MiniIcon)
-IconStroke.Color = MAIN_COLOR
-IconStroke.Thickness = 2 
 
 -- [[ MAIN FRAME ]] --
 local MainFrame = Instance.new("Frame", ScreenGui)
@@ -42,8 +24,27 @@ MainFrame.BackgroundColor3 = Color3.fromRGB(12, 12, 17)
 MainFrame.Active = true
 MainFrame.Draggable = true
 MainFrame.ClipsDescendants = true
+MainFrame.Visible = true -- Load UI first
 Instance.new("UICorner", MainFrame)
 Instance.new("UIStroke", MainFrame).Color = Color3.fromRGB(50, 50, 60)
+
+-- [[ MINIMIZE ICON (Hidden at start) ]] --
+local MiniIcon = Instance.new("TextButton", ScreenGui)
+MiniIcon.Size = UDim2.new(0, 0, 0, 0)
+MiniIcon.Position = MainFrame.Position -- Center of UI
+MiniIcon.BackgroundColor3 = Color3.fromRGB(50, 50, 65)
+MiniIcon.Text = "N A B I"
+MiniIcon.Font = Enum.Font.GothamBold
+MiniIcon.TextColor3 = MAIN_COLOR
+MiniIcon.TextSize = 10
+MiniIcon.Visible = false
+MiniIcon.Active = true
+MiniIcon.Draggable = true 
+MiniIcon.ZIndex = 20
+Instance.new("UICorner", MiniIcon).CornerRadius = UDim.new(1, 0)
+local IconStroke = Instance.new("UIStroke", MiniIcon)
+IconStroke.Color = MAIN_COLOR
+IconStroke.Thickness = 2 
 
 -- [[ HEADER BAR ]] --
 local Header = Instance.new("Frame", MainFrame)
@@ -64,29 +65,38 @@ Underline.Size = UDim2.new(0.33, -10, 0, 2); Underline.Position = UDim2.new(0, 5
 local ContentFrame = Instance.new("Frame", MainFrame)
 ContentFrame.Size = UDim2.new(1, -20, 1, -85); ContentFrame.Position = UDim2.new(0, 10, 0, 75); ContentFrame.BackgroundTransparency = 1
 
--- [[ ANIMATION LOGIC ]] --
+-- [[ REFINED TOGGLE LOGIC ]] --
 local function ToggleUI()
     IsMinimized = not IsMinimized
     
-    local openInfo = TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
-    local closeInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.In)
+    local popInfo = TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+    local shrinkInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.In)
     
     if IsMinimized then
-        TweenService:Create(MainFrame, closeInfo, {Size = UDim2.new(0,0,0,0), Rotation = 10}):Play()
+        -- 1. Calculate the center of the current MainFrame location
+        local currentCenter = UDim2.new(0, MainFrame.AbsolutePosition.X + (MainFrame.AbsoluteSize.X/2) - (IconSize.X.Offset/2), 0, MainFrame.AbsolutePosition.Y + (MainFrame.AbsoluteSize.Y/2) - (IconSize.Y.Offset/2))
+        
+        -- 2. Shrink Main UI
+        TweenService:Create(MainFrame, shrinkInfo, {Size = UDim2.new(0,0,0,0), Rotation = 10}):Play()
         task.wait(0.25)
         MainFrame.Visible = false
         
+        -- 3. Pop Icon out from that center
+        MiniIcon.Position = currentCenter
         MiniIcon.Visible = true
         MiniIcon.Size = UDim2.new(0,0,0,0)
-        TweenService:Create(MiniIcon, openInfo, {Size = IconSize}):Play()
+        TweenService:Create(MiniIcon, popInfo, {Size = IconSize}):Play()
     else
-        TweenService:Create(MiniIcon, closeInfo, {Size = UDim2.new(0,0,0,0)}):Play()
+        -- 1. Shrink Icon
+        TweenService:Create(MiniIcon, shrinkInfo, {Size = UDim2.new(0,0,0,0)}):Play()
         task.wait(0.2)
         MiniIcon.Visible = false
         
+        -- 2. Main UI grows back from Icon's current position
+        MainFrame.Position = UDim2.new(0, MiniIcon.AbsolutePosition.X - (MainSize.X.Offset/2) + (IconSize.X.Offset/2), 0, MiniIcon.AbsolutePosition.Y - (MainSize.Y.Offset/2) + (IconSize.Y.Offset/2))
         MainFrame.Visible = true
         MainFrame.Rotation = -10
-        TweenService:Create(MainFrame, openInfo, {Size = MainSize, Rotation = 0}):Play()
+        TweenService:Create(MainFrame, popInfo, {Size = MainSize, Rotation = 0}):Play()
     end
 end
 
