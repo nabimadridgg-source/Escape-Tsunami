@@ -3,6 +3,11 @@ return function(ParentFrame)
     ParentFrame:ClearAllChildren()
     
     local Enabled = false
+    local COIN_COLLECT_SPEED = 120 -- Adjust speed as needed
+    local TweenService = game:GetService("TweenService")
+    local LocalPlayer = game.Players.LocalPlayer
+
+    -- [[ UI ELEMENT ]] --
     local ToggleBtn = Instance.new("TextButton", ParentFrame)
     ToggleBtn.Size = UDim2.new(0, 220, 0, 45)
     ToggleBtn.Position = UDim2.new(0.5,-110,0.4,-22)
@@ -21,24 +26,41 @@ return function(ParentFrame)
         ToggleBtn.TextColor3 = Enabled and Color3.fromRGB(50, 255, 50) or Color3.fromRGB(255, 50, 50)
     end)
 
+    -- [[ COLLECTION LOGIC ]] --
     task.spawn(function()
         while ParentFrame and ParentFrame.Parent do
             if Enabled then
-                for _, v in next, getnilinstances() do
-                    if v.Name == "Radioactive Coin" and v:IsA("Model") and Enabled then
-                        pcall(function()
-                            local target = v.EventParts:FindFirstChild("Radioactive Coin")
-                            local hrp = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-                            if target and hrp then 
-                                local dist = (hrp.Position - target.Position).Magnitude
-                                local t = game:GetService("TweenService"):Create(hrp, TweenInfo.new(dist/120, Enum.EasingStyle.Linear), {CFrame = target.CFrame})
-                                t:Play() t.Completed:Wait()
-                            end
-                        end)
+                local eventParts = workspace:FindFirstChild("EventParts")
+                if eventParts then
+                    -- Get all items in EventParts (the radioactive coins)
+                    local coins = eventParts:GetChildren()
+                    
+                    for _, coin in ipairs(coins) do
+                        if not Enabled then break end
+                        
+                        -- Check if it's a valid coin model
+                        if coin:IsA("Model") and coin.Name:find("Radioactive") then
+                            pcall(function()
+                                local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                                if hrp then
+                                    -- Use WorldPivot as requested
+                                    local targetCFrame = coin:GetPivot() 
+                                    local distance = (hrp.Position - targetCFrame.Position).Magnitude
+                                    
+                                    -- Tween to the coin
+                                    local tween = TweenService:Create(hrp, TweenInfo.new(distance/COIN_COLLECT_SPEED, Enum.EasingStyle.Linear), {CFrame = targetCFrame})
+                                    tween:Play()
+                                    tween.Completed:Wait()
+                                    
+                                    -- Small wait to ensure collection registration
+                                    task.wait(0.1)
+                                end
+                            end)
+                        end
                     end
                 end
             end
-            task.wait(0.5)
+            task.wait(0.5) -- Cool down before checking for new spawns
         end
     end)
 end
