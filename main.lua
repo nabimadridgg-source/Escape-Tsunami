@@ -12,9 +12,35 @@ local BASE_URL = "https://raw.githubusercontent.com/nabimadridgg-source/Escape-T
 
 -- [[ UI ROOT ]] --
 local ScreenGui = Instance.new("ScreenGui", LocalPlayer.PlayerGui)
-ScreenGui.Name = "NabiHub_V5_Smooth"
+ScreenGui.Name = "NabiHub_Particles"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+-- [[ PARTICLE FUNCTION ]] --
+local function CreateParticles(sourceFrame)
+    local center = sourceFrame.AbsolutePosition + (sourceFrame.AbsoluteSize / 2)
+    for i = 1, 10 do -- Number of particles
+        local p = Instance.new("Frame", ScreenGui)
+        p.Size = UDim2.new(0, 6, 0, 6)
+        p.Position = UDim2.new(0, center.X, 0, center.Y)
+        p.BackgroundColor3 = MAIN_COLOR
+        p.BorderSizePixel = 0
+        p.ZIndex = 100
+        Instance.new("UICorner", p).CornerRadius = UDim.new(1, 0)
+        
+        -- Random spread direction
+        local tx = math.random(-150, 150)
+        local ty = math.random(-150, 150)
+        
+        TweenService:Create(p, TweenInfo.new(0.6, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+            Position = p.Position + UDim2.new(0, tx, 0, ty),
+            BackgroundTransparency = 1,
+            Size = UDim2.new(0, 0, 0, 0)
+        }):Play()
+        
+        task.delay(0.6, function() p:Destroy() end)
+    end
+end
 
 -- [[ MINIMIZE ICON ]] --
 local MiniIcon = Instance.new("TextButton", ScreenGui)
@@ -29,9 +55,7 @@ MiniIcon.Visible = false
 MiniIcon.Draggable = true 
 MiniIcon.ZIndex = 20
 Instance.new("UICorner", MiniIcon).CornerRadius = UDim.new(1, 0)
-local IconStroke = Instance.new("UIStroke", MiniIcon)
-IconStroke.Color = MAIN_COLOR
-IconStroke.Thickness = 2 
+Instance.new("UIStroke", MiniIcon).Color = MAIN_COLOR
 
 -- [[ MAIN FRAME ]] --
 local MainFrame = Instance.new("Frame", ScreenGui)
@@ -47,11 +71,9 @@ Instance.new("UIStroke", MainFrame).Color = Color3.fromRGB(50, 50, 60)
 -- [[ HEADER BAR ]] --
 local Header = Instance.new("Frame", MainFrame)
 Header.Size = UDim2.new(1, 0, 0, 35); Header.BackgroundTransparency = 1
-
 local Title = Instance.new("TextLabel", Header)
 Title.Size = UDim2.new(1, -40, 1, 0); Title.Position = UDim2.new(0, 12, 0, 0); Title.BackgroundTransparency = 1
 Title.Text = "NABI HUB"; Title.TextColor3 = MAIN_COLOR; Title.Font = Enum.Font.GothamBold; Title.TextSize = 14; Title.TextXAlignment = Enum.TextXAlignment.Left
-
 local CloseBtn = Instance.new("TextButton", Header)
 CloseBtn.Size = UDim2.new(0, 22, 0, 22); CloseBtn.Position = UDim2.new(1, -28, 0.5, -11); CloseBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
 CloseBtn.Text = "×"; CloseBtn.TextColor3 = Color3.new(1, 1, 1); CloseBtn.Font = Enum.Font.GothamBold; CloseBtn.TextSize = 18
@@ -65,35 +87,29 @@ Underline.Size = UDim2.new(0.33, -10, 0, 2); Underline.Position = UDim2.new(0, 5
 local ContentFrame = Instance.new("Frame", MainFrame)
 ContentFrame.Size = UDim2.new(1, -20, 1, -85); ContentFrame.Position = UDim2.new(0, 10, 0, 75); ContentFrame.BackgroundTransparency = 1
 
--- [[ SMOOTH ANIMATION LOGIC ]] --
+-- [[ PARTICLE ANIMATION LOGIC ]] --
 local function ToggleUI()
     IsMinimized = not IsMinimized
     
-    -- Easing Styles for that "Better" feel
-    local openInfo = TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
-    local closeInfo = TweenInfo.new(0.4, Enum.EasingStyle.Quart, Enum.EasingDirection.In)
-    local springInfo = TweenInfo.new(0.6, Enum.EasingStyle.Elastic, Enum.EasingDirection.Out)
-    
     if IsMinimized then
-        -- CLOSE ANIMATION: Shrink and Fade
-        TweenService:Create(MainFrame, closeInfo, {Size = UDim2.new(0,0,0,0), Rotation = 10}):Play()
-        task.wait(0.3)
+        -- Particle burst from MainFrame
+        CreateParticles(MainFrame)
+        TweenService:Create(MainFrame, TweenInfo.new(0.3), {Size = UDim2.new(0,0,0,0), Rotation = 15}):Play()
+        task.wait(0.2)
         MainFrame.Visible = false
         
-        -- Show Icon with a Spring "Pop"
         MiniIcon.Visible = true
-        MiniIcon.Size = UDim2.new(0,0,0,0)
-        TweenService:Create(MiniIcon, springInfo, {Size = IconSize}):Play()
+        TweenService:Create(MiniIcon, TweenInfo.new(0.5, Enum.EasingStyle.Elastic), {Size = IconSize}):Play()
     else
-        -- OPEN ANIMATION: Hide Icon
-        TweenService:Create(MiniIcon, closeInfo, {Size = UDim2.new(0,0,0,0)}):Play()
-        task.wait(0.2)
+        -- Particle burst from MiniIcon
+        CreateParticles(MiniIcon)
+        TweenService:Create(MiniIcon, TweenInfo.new(0.2), {Size = UDim2.new(0,0,0,0)}):Play()
+        task.wait(0.1)
         MiniIcon.Visible = false
         
-        -- Show Main Frame with a "Back" Bounce
         MainFrame.Visible = true
-        MainFrame.Rotation = -10
-        TweenService:Create(MainFrame, openInfo, {Size = MainSize, Rotation = 0}):Play()
+        MainFrame.Rotation = -15
+        TweenService:Create(MainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back), {Size = MainSize, Rotation = 0}):Play()
     end
 end
 
