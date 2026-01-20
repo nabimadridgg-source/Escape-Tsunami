@@ -40,7 +40,7 @@ ContentFrame.Size = UDim2.new(1, -20, 1, -85); ContentFrame.Position = UDim2.new
 -- [[ LOADSTRINGS ]] --
 -- Replace the URLs below with your actual Pastebin/Github raw links
 local function LoadBrainrot()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/nabimadridgg-source/Escape-Tsunami/refs/heads/main/Main?token=GHSAT0AAAAAADTTKSW6W5FHNMAGNLGO7JZK2LO5TLQ"))()(ContentFrame)
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/nabimadridgg-source/Escape-Tsunami/refs/heads/main/BrainrotLOGS?token=GHSAT0AAAAAADTTKSW7TVNSTU4JMZND54QC2LO5VAA"))()(ContentFrame)
 end
 
 local function LoadPlaces()
