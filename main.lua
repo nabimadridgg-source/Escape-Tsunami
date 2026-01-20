@@ -12,26 +12,13 @@ local BASE_URL = "https://raw.githubusercontent.com/nabimadridgg-source/Escape-T
 
 -- [[ UI ROOT ]] --
 local ScreenGui = Instance.new("ScreenGui", LocalPlayer.PlayerGui)
-ScreenGui.Name = "NabiHub_V7"
+ScreenGui.Name = "NabiHub_V9_UpperLeft"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
--- [[ MAIN FRAME ]] --
-local MainFrame = Instance.new("Frame", ScreenGui)
-MainFrame.Size = MainSize
-MainFrame.Position = UDim2.new(0.5, -180, 0.5, -142)
-MainFrame.BackgroundColor3 = Color3.fromRGB(12, 12, 17)
-MainFrame.Active = true
-MainFrame.Draggable = true
-MainFrame.ClipsDescendants = true
-MainFrame.Visible = true -- Load UI first
-Instance.new("UICorner", MainFrame)
-Instance.new("UIStroke", MainFrame).Color = Color3.fromRGB(50, 50, 60)
-
--- [[ MINIMIZE ICON (Hidden at start) ]] --
+-- [[ MINIMIZE ICON ]] --
 local MiniIcon = Instance.new("TextButton", ScreenGui)
 MiniIcon.Size = UDim2.new(0, 0, 0, 0)
-MiniIcon.Position = MainFrame.Position -- Center of UI
 MiniIcon.BackgroundColor3 = Color3.fromRGB(50, 50, 65)
 MiniIcon.Text = "N A B I"
 MiniIcon.Font = Enum.Font.GothamBold
@@ -46,7 +33,20 @@ local IconStroke = Instance.new("UIStroke", MiniIcon)
 IconStroke.Color = MAIN_COLOR
 IconStroke.Thickness = 2 
 
--- [[ HEADER BAR ]] --
+-- [[ MAIN FRAME ]] --
+local MainFrame = Instance.new("Frame", ScreenGui)
+MainFrame.Size = MainSize
+-- Positioned at Upper Left with a small 20px gap from the edges
+MainFrame.Position = UDim2.new(0, 20, 0, 20) 
+MainFrame.BackgroundColor3 = Color3.fromRGB(12, 12, 17)
+MainFrame.Active = true
+MainFrame.Draggable = true
+MainFrame.ClipsDescendants = true
+MainFrame.Visible = true
+Instance.new("UICorner", MainFrame)
+Instance.new("UIStroke", MainFrame).Color = Color3.fromRGB(50, 50, 60)
+
+-- [[ HEADER / TABS / CONTENT ]] --
 local Header = Instance.new("Frame", MainFrame)
 Header.Size = UDim2.new(1, 0, 0, 35); Header.BackgroundTransparency = 1
 local Title = Instance.new("TextLabel", Header)
@@ -57,7 +57,6 @@ CloseBtn.Size = UDim2.new(0, 22, 0, 22); CloseBtn.Position = UDim2.new(1, -28, 0
 CloseBtn.Text = "×"; CloseBtn.TextColor3 = Color3.new(1, 1, 1); CloseBtn.Font = Enum.Font.GothamBold; CloseBtn.TextSize = 18
 Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(0.3, 0)
 
--- [[ CONTENT & TABS ]] --
 local TabContainer = Instance.new("Frame", MainFrame)
 TabContainer.Size = UDim2.new(1, -20, 0, 30); TabContainer.Position = UDim2.new(0, 10, 0, 40); TabContainer.BackgroundTransparency = 1
 local Underline = Instance.new("Frame", TabContainer)
@@ -65,38 +64,37 @@ Underline.Size = UDim2.new(0.33, -10, 0, 2); Underline.Position = UDim2.new(0, 5
 local ContentFrame = Instance.new("Frame", MainFrame)
 ContentFrame.Size = UDim2.new(1, -20, 1, -85); ContentFrame.Position = UDim2.new(0, 10, 0, 75); ContentFrame.BackgroundTransparency = 1
 
--- [[ REFINED TOGGLE LOGIC ]] --
+-- [[ TOGGLE LOGIC ]] --
 local function ToggleUI()
     IsMinimized = not IsMinimized
-    
-    local popInfo = TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
-    local shrinkInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.In)
+    local pop = TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+    local hide = TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.In)
     
     if IsMinimized then
-        -- 1. Calculate the center of the current MainFrame location
-        local currentCenter = UDim2.new(0, MainFrame.AbsolutePosition.X + (MainFrame.AbsoluteSize.X/2) - (IconSize.X.Offset/2), 0, MainFrame.AbsolutePosition.Y + (MainFrame.AbsoluteSize.Y/2) - (IconSize.Y.Offset/2))
-        
-        -- 2. Shrink Main UI
-        TweenService:Create(MainFrame, shrinkInfo, {Size = UDim2.new(0,0,0,0), Rotation = 10}):Play()
-        task.wait(0.25)
+        local centerX = MainFrame.Position.X.Offset + (MainFrame.Size.X.Offset / 2)
+        local centerY = MainFrame.Position.Y.Offset + (MainFrame.Size.Y.Offset / 2)
+        local centerPos = UDim2.new(MainFrame.Position.X.Scale, centerX - (IconSize.X.Offset/2), MainFrame.Position.Y.Scale, centerY - (IconSize.Y.Offset/2))
+
+        TweenService:Create(MainFrame, hide, {Size = UDim2.new(0,0,0,0), Rotation = 15}):Play()
+        task.wait(0.2)
         MainFrame.Visible = false
         
-        -- 3. Pop Icon out from that center
-        MiniIcon.Position = currentCenter
+        MiniIcon.Position = centerPos
         MiniIcon.Visible = true
-        MiniIcon.Size = UDim2.new(0,0,0,0)
-        TweenService:Create(MiniIcon, popInfo, {Size = IconSize}):Play()
+        TweenService:Create(MiniIcon, pop, {Size = IconSize}):Play()
     else
-        -- 1. Shrink Icon
-        TweenService:Create(MiniIcon, shrinkInfo, {Size = UDim2.new(0,0,0,0)}):Play()
-        task.wait(0.2)
+        local iconCenterX = MiniIcon.Position.X.Offset + (MiniIcon.Size.X.Offset / 2)
+        local iconCenterY = MiniIcon.Position.Y.Offset + (MiniIcon.Size.Y.Offset / 2)
+        local newMainPos = UDim2.new(MiniIcon.Position.X.Scale, iconCenterX - (MainSize.X.Offset/2), MiniIcon.Position.Y.Scale, iconCenterY - (MainSize.Y.Offset/2))
+
+        TweenService:Create(MiniIcon, hide, {Size = UDim2.new(0,0,0,0)}):Play()
+        task.wait(0.15)
         MiniIcon.Visible = false
         
-        -- 2. Main UI grows back from Icon's current position
-        MainFrame.Position = UDim2.new(0, MiniIcon.AbsolutePosition.X - (MainSize.X.Offset/2) + (IconSize.X.Offset/2), 0, MiniIcon.AbsolutePosition.Y - (MainSize.Y.Offset/2) + (IconSize.Y.Offset/2))
+        MainFrame.Position = newMainPos
         MainFrame.Visible = true
-        MainFrame.Rotation = -10
-        TweenService:Create(MainFrame, popInfo, {Size = MainSize, Rotation = 0}):Play()
+        MainFrame.Rotation = -15
+        TweenService:Create(MainFrame, pop, {Size = MainSize, Rotation = 0}):Play()
     end
 end
 
@@ -104,51 +102,36 @@ CloseBtn.MouseButton1Click:Connect(ToggleUI)
 MiniIcon.MouseButton1Click:Connect(ToggleUI)
 UserInputService.InputBegan:Connect(function(i, g) if not g and i.KeyCode == Enum.KeyCode.K then ToggleUI() end end)
 
--- [[ LOADER LOGIC ]] --
+-- [[ LOADER ]] --
 local Modules = {}
-local function SwitchTab(btn, underlineX, modName, fileName)
+local function SwitchTab(btn, x, mod, file)
     for _, child in pairs(TabContainer:GetChildren()) do
-        if child:IsA("TextButton") then TweenService:Create(child, TweenInfo.new(0.3), {TextColor3 = Color3.fromRGB(150, 150, 150)}):Play() end
+        if child:IsA("TextButton") then child.TextColor3 = Color3.fromRGB(150, 150, 150) end
     end
-    TweenService:Create(btn, TweenInfo.new(0.3), {TextColor3 = Color3.new(1, 1, 1)}):Play()
-    TweenService:Create(Underline, TweenInfo.new(0.4, Enum.EasingStyle.Back), {Position = UDim2.new(underlineX, 5, 1, -2)}):Play()
+    btn.TextColor3 = Color3.new(1, 1, 1)
+    TweenService:Create(Underline, TweenInfo.new(0.4, Enum.EasingStyle.Back), {Position = UDim2.new(x, 5, 1, -2)}):Play()
     ContentFrame:ClearAllChildren()
-    
-    if Modules[modName] then
-        Modules[modName](ContentFrame)
-    else
-        local status = Instance.new("TextLabel", ContentFrame)
-        status.Size = UDim2.new(1,0,1,0); status.Text = "Fetching " .. fileName .. "..."; status.TextColor3 = Color3.new(1,1,1); status.BackgroundTransparency = 1
+    if Modules[mod] then Modules[mod](ContentFrame) else
+        local s = Instance.new("TextLabel", ContentFrame)
+        s.Size = UDim2.new(1,0,1,0); s.Text = "Loading..."; s.TextColor3 = Color3.new(1,1,1); s.BackgroundTransparency = 1
         task.spawn(function()
-            local success, code = pcall(function() return game:HttpGet(BASE_URL .. fileName) end)
+            local success, code = pcall(function() return game:HttpGet(BASE_URL .. file) end)
             if success and not code:find("404") then
-                local func = loadstring(code)
-                if func then
-                    Modules[modName] = func()
-                    status:Destroy()
-                    Modules[modName](ContentFrame)
-                else
-                    status.Text = "ERROR: SCRIPT BUG"
-                end
-            else
-                status.Text = "DOWNLOAD FAILED"
-            end
+                local f = loadstring(code)
+                if f then Modules[mod] = f(); s:Destroy(); Modules[mod](ContentFrame) else s.Text = "Error" end
+            else s.Text = "Failed" end
         end)
     end
 end
 
--- [[ TABS SETUP ]] --
-local function CreateTab(name, xPos, modName, fileName)
-    local btn = Instance.new("TextButton", TabContainer)
-    btn.Size = UDim2.new(0.33, 0, 1, 0); btn.Position = UDim2.new(xPos, 0, 0, 0)
-    btn.Text = name; btn.Font = Enum.Font.GothamBold; btn.TextSize = 8; btn.TextColor3 = Color3.fromRGB(150, 150, 150); btn.BackgroundTransparency = 1
-    btn.MouseButton1Click:Connect(function() SwitchTab(btn, xPos, modName, fileName) end)
-    return btn
+local function CreateTab(n, x, m, f)
+    local b = Instance.new("TextButton", TabContainer)
+    b.Size = UDim2.new(0.33, 0, 1, 0); b.Position = UDim2.new(x, 0, 0, 0)
+    b.Text = n; b.Font = Enum.Font.GothamBold; b.TextSize = 8; b.TextColor3 = Color3.fromRGB(150, 150, 150); b.BackgroundTransparency = 1
+    b.MouseButton1Click:Connect(function() SwitchTab(b, x, m, f) end); return b
 end
 
 local b1 = CreateTab("LOGS", 0, "LOGS", "LOGS.lua")
 local b2 = CreateTab("LOCATIONS", 0.33, "LOCATIONS", "LOCATIONS.lua")
 local b3 = CreateTab("RADIOACTIVE", 0.66, "RADIOACTIVE", "RADIOACTIVE.lua")
-
-task.wait(0.2)
-SwitchTab(b1, 0, "LOGS", "LOGS.lua")
+task.wait(0.2); SwitchTab(b1, 0, "LOGS", "LOGS.lua")
